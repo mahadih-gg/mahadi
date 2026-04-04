@@ -4,6 +4,7 @@ import type React from "react"
 
 import { motion } from "motion/react"
 import Image from "next/image"
+import { GlowButton } from "./glow-button"
 import HeroBG from "./hero-bg"
 
 interface NavLinkProps {
@@ -45,13 +46,21 @@ export default function Hero() {
   return (
     <HeroBG>
       <div className="relative z-10 h-full flex flex-col justify-between p-8 md:p-12">
-        <nav className="text-left flex items-start gap-x-4">
-          {navLinks.map((link) => (
-            <NavLink key={link.text} href={link.href}>
-              {link.text}
-            </NavLink>
-          ))}
-        </nav>
+        <div className="flex justify-between items-center">
+          <nav className="text-left flex items-start gap-x-4">
+            {navLinks.map((link) => (
+              <NavLink key={link.text} href={link.href}>
+                {link.text}
+              </NavLink>
+            ))}
+          </nav>
+
+          <div className="shrink-0">
+            <GlowButton href="https://drive.google.com/file/d/1y_-MxKZrohq_6p2sIckGhcPhlfK7HVl7/view?usp=sharing" target="_blank" className="mx-0">
+              Resume
+            </GlowButton>
+          </div>
+        </div>
 
         <div className="flex flex-col md:flex-row justify-between items-end">
           <div>
