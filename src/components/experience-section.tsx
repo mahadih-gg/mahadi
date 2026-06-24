@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useInteractiveCursor } from "@/context/interactive-cursor-context";
 import { Engine } from "@/lib/depth-gallery/Experience/Engine";
 import { Experience } from "@/lib/depth-gallery/Experience/index";
 import { experienceRoles } from "@/lib/depth-gallery/data/galleryData";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useEffect, useRef } from "react";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -139,10 +139,6 @@ export default function ExperienceSection() {
 
       <header className="frame">
         <h2 className="frame__title">Experience</h2>
-        <p className="frame__credit">
-          Scroll to move through roles · mood-driven backgrounds · velocity
-          motion
-        </p>
       </header>
 
       <div className="depth-gallery__sr-only">
