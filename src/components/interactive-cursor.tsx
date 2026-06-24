@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { useInteractiveCursor } from "@/context/interactive-cursor-context";
+import { useEffect, useRef } from "react";
 
 const PARAMS = {
-  pointsNumber: 40,
+  pointsNumber: 30,
   widthFactor: 0.3,
-  spring: 0.4,
-  friction: 0.5,
+  spring: 0.8,
+  friction: 0.3,
 } as const;
 
 export default function InteractiveCursor() {
@@ -53,30 +53,41 @@ export default function InteractiveCursor() {
       canvas.height = window.innerHeight;
     };
 
-    const onClick = (e: MouseEvent) =>
-      updateMousePosition(e.clientX, e.clientY);
-    const onMouseMove = (e: MouseEvent) => {
-      mouseMoved = true;
-      updateMousePosition(e.clientX, e.clientY);
-    };
-    const onTouchMove = (e: TouchEvent) => {
-      mouseMoved = true;
-      const touch = e.targetTouches[0];
-      if (touch) {
-        updateMousePosition(touch.clientX, touch.clientY);
+    const syncTrailToPointer = () => {
+      for (const p of trail) {
+        p.x = pointer.x;
+        p.y = pointer.y;
+        p.dx = 0;
+        p.dy = 0;
       }
     };
 
-    const update = (t: number) => {
+    const markPointerActive = () => {
+      if (mouseMoved) return;
+      mouseMoved = true;
+      syncTrailToPointer();
+    };
+
+    const onClick = (e: MouseEvent) => {
+      updateMousePosition(e.clientX, e.clientY);
+      markPointerActive();
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+      updateMousePosition(e.clientX, e.clientY);
+      markPointerActive();
+    };
+    const onTouchMove = (e: TouchEvent) => {
+      const touch = e.targetTouches[0];
+      if (!touch) return;
+      updateMousePosition(touch.clientX, touch.clientY);
+      markPointerActive();
+    };
+
+    const update = () => {
       if (!mouseMoved) {
-        pointer.x =
-          (0.5 + 0.3 * Math.cos(0.002 * t) * Math.sin(0.005 * t)) *
-          window.innerWidth;
-        pointer.y =
-          (0.5 +
-            0.2 * Math.cos(0.005 * t) +
-            0.1 * Math.cos(0.01 * t)) *
-          window.innerHeight;
+        rafId = requestAnimationFrame(update);
+        return;
       }
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);

@@ -1,10 +1,14 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useInteractiveCursor } from "@/context/interactive-cursor-context";
 import { Engine } from "@/lib/depth-gallery/Experience/Engine";
 import { Experience } from "@/lib/depth-gallery/Experience/index";
 import { experienceRoles } from "@/lib/depth-gallery/data/galleryData";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function ExperienceSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -24,25 +28,101 @@ export default function ExperienceSection() {
     const experience = new Experience(section);
     const engine = new Engine(canvas, experience, section);
     let disposed = false;
+    let gsapContext: gsap.Context | null = null;
 
-    engine.init().catch((error) => {
-      console.error("Depth gallery failed to initialize", error);
-    });
+    const setPinnedActive = (isActive: boolean) => {
+      setExperienceInView(isActive);
+      engine.setScrollActive(isActive);
+      section.classList.toggle("depth-gallery--active", isActive);
+    };
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        const isActive = Boolean(entry?.isIntersecting);
-        setExperienceInView(isActive);
-        engine.setScrollActive(isActive);
-      },
-      { threshold: 0.15 },
-    );
-    observer.observe(section);
+    const setResting = (isResting: boolean) => {
+      section.classList.toggle("depth-gallery--resting", isResting);
+
+      if (isResting) {
+        engine.setScrollProgress(1);
+      }
+    };
+
+    const onResize = () => {
+      engine.resize();
+      ScrollTrigger.refresh();
+    };
+
+    const setup = async () => {
+      try {
+        await engine.init();
+        if (disposed) return;
+
+        engine.setScrollDriveMode("scroll");
+        engine.primeAtStart();
+        section.style.backgroundColor = "transparent";
+        section.classList.add("depth-gallery--primed");
+
+        const scrollDistance = engine.getScrollTrackDistancePx();
+
+        gsapContext = gsap.context(() => {
+          ScrollTrigger.create({
+            id: "experience-pin",
+            trigger: section,
+            start: "top top",
+            end: `+=${scrollDistance}`,
+            pin: true,
+            pinSpacing: true,
+            scrub: true,
+            onEnter: (self) => {
+              setResting(false);
+              engine.setScrollProgress(self.progress);
+              setPinnedActive(true);
+            },
+            onEnterBack: (self) => {
+              setResting(false);
+              engine.setScrollProgress(self.progress);
+              setPinnedActive(true);
+            },
+            onUpdate: (self) => {
+              engine.setScrollProgress(self.progress);
+            },
+            onLeave: () => {
+              setPinnedActive(false);
+              setResting(true);
+            },
+            onLeaveBack: () => {
+              setPinnedActive(false);
+              setResting(false);
+            },
+          });
+
+          ScrollTrigger.refresh();
+
+          const trigger = ScrollTrigger.getById("experience-pin");
+          if (trigger?.isActive) {
+            engine.setScrollProgress(trigger.progress);
+            setPinnedActive(true);
+          } else if (trigger && trigger.progress >= 1) {
+            setResting(true);
+          }
+        }, section);
+
+        window.addEventListener("resize", onResize);
+      } catch (error) {
+        console.error("Depth gallery failed to initialize", error);
+      }
+    };
+
+    setup();
 
     return () => {
       if (disposed) return;
       disposed = true;
-      observer.disconnect();
+      window.removeEventListener("resize", onResize);
+      gsapContext?.revert();
+      section.classList.remove(
+        "depth-gallery--active",
+        "depth-gallery--resting",
+        "depth-gallery--primed",
+      );
+      section.style.backgroundColor = "";
       setExperienceInView(false);
       engine.dispose();
     };

@@ -4,5 +4,5 @@ export function bindNavToggle(navToggle: HTMLInputElement): void;
 
 export function initUnderwaterNavigation(
   navElement: HTMLElement,
-  navToggle: HTMLInputElement,
+  navToggle?: HTMLInputElement,
 ): Promise<import("./types").UnderwaterNavigationInstance>;

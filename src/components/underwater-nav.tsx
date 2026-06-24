@@ -1,7 +1,10 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import type { UnderwaterNavigationInstance } from "@/lib/underwater-nav/types";
+import { cn } from "@/lib/utils";
+import { useCallback, useEffect, useRef, useState } from "react";
+
+
 
 const NAV_LINKS = [
   { label: "About", href: "#about" },
@@ -12,11 +15,13 @@ const NAV_LINKS = [
 ] as const;
 
 function loadScript(src: string): Promise<void> {
+
   return new Promise((resolve, reject) => {
     if (document.querySelector(`script[src="${src}"]`)) {
       resolve();
       return;
     }
+
     const script = document.createElement("script");
     script.src = src;
     script.async = true;
@@ -27,23 +32,36 @@ function loadScript(src: string): Promise<void> {
 }
 
 export default function UnderwaterNav() {
+
   const navRef = useRef<HTMLElement>(null);
-  const toggleRef = useRef<HTMLInputElement>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const openMenu = useCallback(() => {
+    setIsOpen(true);
+    window.dispatchEvent(new CustomEvent("navOpen"));
+  }, []);
+
+  const closeMenu = useCallback(() => {
+    setIsOpen(false);
+    window.dispatchEvent(new CustomEvent("navClose"));
+  }, []);
 
   useEffect(() => {
-    if (!navRef.current || !toggleRef.current) return;
+    if (!navRef.current) return;
     const navEl = navRef.current;
-    const toggleEl = toggleRef.current;
 
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
+
     if (reducedMotion) return;
 
     let navInstance: UnderwaterNavigationInstance | null = null;
+
     let cancelled = false;
 
     async function setup() {
+
       try {
         await loadScript("/vendor/pixi.min.js");
         if (cancelled) return;
@@ -51,17 +69,20 @@ export default function UnderwaterNav() {
         const { initUnderwaterNavigation } = await import(
           "@/lib/underwater-nav/runtime"
         );
+
         if (cancelled) return;
 
-        navInstance = await initUnderwaterNavigation(navEl, toggleEl);
+        navInstance = await initUnderwaterNavigation(navEl);
       } catch {
         // Fallback links remain usable without WebGL
       }
+
     }
 
     setup();
 
     return () => {
+
       cancelled = true;
       navInstance?.deInit();
       if (navInstance?.app) {
@@ -75,48 +96,63 @@ export default function UnderwaterNav() {
   }, []);
 
   return (
-    <div className="underwater-nav-frame">
-      <label
-        className="underwater-nav-open nav-toggle"
-        htmlFor="main-nav-toggle"
-        tabIndex={0}
+
+    <div className="relative z-[1]">
+      <button
+        type="button"
+        className="nav-toggle inline-flex cursor-pointer border-none bg-transparent p-0 text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
         aria-label="Open menu"
+        aria-expanded={isOpen}
+        aria-controls="main-nav"
+        onClick={openMenu}
       >
         <svg aria-hidden width={28} height={20} viewBox="0 0 28 20">
           <rect x="0" y="2" width="28" height="2" fill="currentColor" />
           <rect x="0" y="10" width="24" height="2" fill="currentColor" />
           <rect x="0" y="18" width="28" height="2" fill="currentColor" />
         </svg>
-      </label>
+      </button>
 
-      <input
-        ref={toggleRef}
-        type="checkbox"
-        id="main-nav-toggle"
-        className="underwater-nav-toggle-input"
-      />
-
-      <nav ref={navRef} className="main-nav" aria-label="Main navigation">
-        <ul className="main-nav__fallback">
+      <nav
+        ref={navRef}
+        id="main-nav"
+        aria-label="Main navigation"
+        aria-hidden={!isOpen}
+        className={cn(
+          "fixed inset-0 z-[10001] flex h-full w-full items-center justify-center bg-background transition-opacity duration-300",
+          isOpen
+            ? "pointer-events-auto opacity-100 [&_*]:pointer-events-auto"
+            : "pointer-events-none opacity-0 [&_*]:pointer-events-none",
+        )}
+      >
+        <ul className="m-0 list-none p-0 text-center min-[40.063em]:sr-only">
           {NAV_LINKS.map(({ label, href }) => (
             <li key={href}>
-              <a href={href}>{label}</a>
+              <a
+                href={href}
+                onClick={closeMenu}
+                className="font-secondary text-[clamp(1.75rem,5vw,3.5rem)] text-primary no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+              >
+                {label}
+              </a>
             </li>
           ))}
         </ul>
-        <label
-          className="main-nav__close nav-toggle"
-          htmlFor="main-nav-toggle"
-          tabIndex={0}
+
+        <button
+          type="button"
+          className="nav-toggle fixed top-8 left-1/2 z-[10003] -translate-x-1/2 cursor-pointer border-none bg-transparent p-0 text-primary"
           aria-label="Close menu"
+          onClick={closeMenu}
         >
+
           <svg aria-hidden width={24} height={22} viewBox="0 0 24 22">
             <path
               fill="currentColor"
               d="M11 9.586L20.192.393l1.415 1.415L12.414 11l9.193 9.192-1.415 1.415L11 12.414l-9.192 9.193-1.415-1.415L9.586 11 .393 1.808 1.808.393 11 9.586z"
             />
           </svg>
-        </label>
+        </button>
       </nav>
     </div>
   );

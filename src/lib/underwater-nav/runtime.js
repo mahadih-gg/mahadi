@@ -3,6 +3,30 @@ if (window.NodeList && !NodeList.prototype.forEach) {
   NodeList.prototype.forEach = Array.prototype.forEach;
 }
 
+function readCssVar(name, fallback) {
+  const value = getComputedStyle(document.documentElement)
+    .getPropertyValue(name)
+    .trim();
+  return value || fallback;
+}
+
+function hexToNormalizedRgb(hex) {
+  const normalized = hex.replace("#", "");
+  if (normalized.length !== 6) return [0.345, 0.651, 1];
+  return [
+    parseInt(normalized.slice(0, 2), 16) / 255,
+    parseInt(normalized.slice(2, 4), 16) / 255,
+    parseInt(normalized.slice(4, 6), 16) / 255,
+  ];
+}
+
+function readThemeFontFamily() {
+  return (
+    getComputedStyle(document.body).getPropertyValue("--font-secondary").trim() ||
+    '"Syne", sans-serif'
+  );
+}
+
 /**
  * This class provides provides a filter that causes distortion
  * based on a screen size and in relation to the user's cursor.
@@ -230,9 +254,10 @@ class HoverFilter extends PIXI.Filter {
    *
    * @constructor
    */
-  constructor() {
+  constructor(baseColor = [0.345, 0.651, 1]) {
     super(PIXI.Filter.defaultVertexSrc, HoverFilter.fragmentSrc);
     this.uniforms.time = 0;
+    this.uniforms.baseColor = baseColor;
   }
 
   /**
@@ -262,6 +287,7 @@ class HoverFilter extends PIXI.Filter {
   uniform vec4 inputPixel;
   uniform vec4 outputFrame;
   uniform float time;
+  uniform vec3 baseColor;
 
   #define PI 3.14159265359
   
@@ -333,7 +359,7 @@ class HoverFilter extends PIXI.Filter {
     float pattern = distortedFBM(vec3(uv, t));
     pattern *= pattern * 1.2;
     // Create our base colour
-    vec4 rtn = vec4( 0.81, 0.33, 0, 1. ); // dark blue
+    vec4 rtn = vec4(baseColor, 1.);
     // mux this colour with another based on the noise value
     rtn = mix(rtn, vec4( 1. ), smoothstep(.0, 1., pattern)); // sort of a light light grey colour
     return rtn;
@@ -423,6 +449,11 @@ class Navigation {
    */
   init() {
     this.initialised = true;
+    this.themePrimary = readCssVar("--primary", "#58a6ff");
+    this.themeBackground = readCssVar("--background", "#0d1117");
+    this.primaryColorRgb = hexToNormalizedRgb(this.themePrimary);
+    this.navFontFamily = readThemeFontFamily();
+    this._backgroundColour = parseInt(this.themeBackground.replace("#", ""), 16);
 
     // Find all of the anchors within the nav element and create generic object
     // holders for them. 
@@ -471,7 +502,7 @@ class Navigation {
       // Turn the sprite into a button and initialise the various event listeners
       navItem.sprite.interactive = true;
       navItem.sprite.buttonMode = true;
-      const filter = new HoverFilter();
+      const filter = new HoverFilter(this.primaryColorRgb);
       // This provides a callback for focus on the root element, providing us with
       // a way to cause navigation on tab.
       navItem.rootElement.addEventListener('focus', ()=> {
@@ -518,9 +549,9 @@ class Navigation {
     const ctx = c.getContext('2d');
 
     // Set up our font
-    const font = '"Potta One", serif';
+    const font = this.navFontFamily;
     const fontSize = 80;
-    const fontWeight = 400;
+    const fontWeight = 700;
 
     ctx.font = `${fontWeight} ${fontSize}px ${font}`;
 
@@ -532,7 +563,7 @@ class Navigation {
     ctx.font = `${fontWeight} ${fontSize}px ${font}`;
     ctx.textAlign="center";
     ctx.textBaseline="bottom"; 
-    ctx.fillStyle = "rgba(223,143,86,1)";
+    ctx.fillStyle = this.themePrimary;
     ctx.fillText(title, c.width*.5, c.height-fontSize*.2);
 
     return c;
@@ -591,7 +622,8 @@ class Navigation {
     // elmenent and append it to the nav element.
     this.app.view.setAttribute('aria-hidden', 'true');    // This just hides the element from the document reader (for sight-impaired people)
     this.app.view.setAttribute('tab-index', '-1');        // This takes the canvas element out of tab order completely (tabbing will be handled programatically using the actual links)
-    this.app.view.className = 'main-nav__canvas';         // Add the class name
+    this.app.view.className =
+      "hidden min-[40.063em]:fixed min-[40.063em]:inset-0 min-[40.063em]:z-[100] min-[40.063em]:block min-[40.063em]:h-full min-[40.063em]:w-full";
     this.nav.appendChild(this.app.view);                  // Append the canvas to the nav element
   }
   
@@ -868,7 +900,7 @@ class Navigation {
     this.setupBackground();
   }
   get backgroundColour() {
-    return this._backgroundColour || 0x151515;
+    return this._backgroundColour || parseInt(readCssVar("--background", "#0d1117").replace("#", ""), 16);
   }
 
   /**
@@ -989,9 +1021,10 @@ export function bindNavToggle(navToggle) {
  */
 export async function initUnderwaterNavigation(navElement, navToggle) {
   const nav = new Navigation(navElement);
-  bindNavToggle(navToggle);
+  if (navToggle) bindNavToggle(navToggle);
 
-  await document.fonts.load('400 80px "Potta One"');
+  const fontFamily = readThemeFontFamily();
+  await document.fonts.load(`700 80px ${fontFamily}`);
   await document.fonts.ready;
 
   nav.init();

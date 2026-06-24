@@ -1,14 +1,14 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "../styles/depth-gallery.css";
-
-@custom-variant dark (&:is(.dark *));
+@source "../lib/underwater-nav/runtime.js";
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-primary: var(--font-primary);
   --font-secondary: var(--font-secondary);
+  --font-display: var(--font-display);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,72 +48,44 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
+  --palette-bg-main: #0d1117;
+  --palette-bg-surface: #161b22;
+  --palette-card-border: #21262d;
+  --palette-accent: #58a6ff;
+  --palette-text: #c9d1d9;
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --radius: 0.625rem;
+  --background: var(--palette-bg-main);
+  --foreground: var(--palette-text);
+  --card: var(--palette-card-border);
+  --card-foreground: var(--palette-text);
+  --popover: var(--palette-bg-surface);
+  --popover-foreground: var(--palette-text);
+  --primary: var(--palette-accent);
+  --primary-foreground: var(--palette-bg-main);
+  --secondary: var(--palette-bg-surface);
+  --secondary-foreground: var(--palette-text);
+  --muted: var(--palette-bg-surface);
+  --muted-foreground: #8b949e;
+  --accent: var(--palette-accent);
+  --accent-foreground: var(--palette-bg-main);
+  --destructive: #f85149;
+  --border: var(--palette-card-border);
+  --input: var(--palette-card-border);
+  --ring: var(--palette-accent);
+  --chart-1: var(--palette-accent);
+  --chart-2: #3fb950;
+  --chart-3: #d29922;
+  --chart-4: #a371f7;
+  --chart-5: #f778ba;
+  --sidebar: var(--palette-bg-surface);
+  --sidebar-foreground: var(--palette-text);
+  --sidebar-primary: var(--palette-accent);
+  --sidebar-primary-foreground: var(--palette-bg-main);
+  --sidebar-accent: var(--palette-card-border);
+  --sidebar-accent-foreground: var(--palette-text);
+  --sidebar-border: var(--palette-card-border);
+  --sidebar-ring: var(--palette-accent);
 }
 
 @layer base {
@@ -134,120 +106,6 @@
   height: 100%;
   pointer-events: none;
   z-index: 9999;
-}
-
-/* Underwater navigation (Codrops / Liam Egan) */
-.underwater-nav-frame {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 10000;
-  pointer-events: none;
-}
-
-.underwater-nav-frame .nav-toggle,
-.underwater-nav-frame .main-nav,
-.underwater-nav-frame .main-nav a {
-  pointer-events: auto;
-}
-
-.underwater-nav-open {
-  position: fixed;
-  top: 1.5rem;
-  left: 1.5rem;
-  cursor: pointer;
-  display: inline-flex;
-  color: var(--foreground);
-  z-index: 10002;
-}
-
-.underwater-nav-open:focus-visible {
-  outline: 2px solid var(--ring);
-  outline-offset: 4px;
-}
-
-.underwater-nav-toggle-input {
-  position: absolute;
-  left: -999em;
-}
-
-#main-nav-toggle:checked~.main-nav {
-  display: flex;
-  opacity: 1;
-  pointer-events: all;
-}
-
-.main-nav__canvas {
-  display: none;
-}
-
-nav.main-nav {
-  transition: opacity 0.3s;
-  align-items: center;
-  background: #151515;
-  justify-content: center;
-  display: flex;
-  height: 100%;
-  left: 0;
-  opacity: 0;
-  pointer-events: none;
-  position: fixed;
-  top: 0;
-  width: 100%;
-  z-index: 10001;
-}
-
-ul.main-nav__fallback {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  text-align: center;
-}
-
-ul.main-nav__fallback a {
-  font-size: clamp(1.75rem, 5vw, 3.5rem);
-  font-family: var(--font-secondary), serif;
-  color: #df8f56;
-  text-decoration: none;
-}
-
-ul.main-nav__fallback a:focus-visible {
-  outline: 2px solid #df8f56;
-  outline-offset: 4px;
-}
-
-@media only screen and (min-width: 40.063em) {
-  .main-nav__canvas {
-    display: block;
-    height: 100%;
-    left: 0;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    z-index: 100;
-  }
-
-  ul.main-nav__fallback {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-}
-
-.main-nav__close {
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 2rem;
-  z-index: 10003;
-  cursor: pointer;
-  color: #df8f56;
 }
 
 @keyframes glow-button-speen {

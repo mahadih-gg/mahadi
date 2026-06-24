@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import type { WebGLRenderer } from "three";
 import { Experience } from "@/lib/depth-gallery/Experience/index";
-import { Scroll } from "@/lib/depth-gallery/Experience/Scroll";
+import { Scroll, type ScrollDriveMode } from "@/lib/depth-gallery/Experience/Scroll";
 
 export class Engine {
   private readonly canvas: HTMLCanvasElement;
@@ -42,6 +42,7 @@ export class Engine {
     this.renderer = new THREE.WebGLRenderer({
       canvas: this.canvas,
       antialias: true,
+      alpha: false,
     });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -137,6 +138,53 @@ export class Engine {
 
   setScrollActive(isActive: boolean): void {
     this.scroll.setActive(isActive);
+  }
+
+  setScrollDriveMode(mode: ScrollDriveMode): void {
+    this.scroll.setDriveMode(mode);
+  }
+
+  setScrollProgress(progress: number): void {
+    this.scroll.setNormalizedProgress(progress);
+  }
+
+  getScrollTrackDistancePx(): number {
+    return this.scroll.getScrollDistancePx();
+  }
+
+  isScrollComplete(): boolean {
+    return this.scroll.isComplete();
+  }
+
+  getRestingBackgroundColor(): string {
+    return this.getPlaneBackgroundColor("last");
+  }
+
+  getInitialBackgroundColor(): string {
+    return this.getPlaneBackgroundColor("first");
+  }
+
+  primeAtStart(): void {
+    this.setScrollProgress(0);
+    this.scroll.update();
+
+    const moodBlend = this.experience.gallery.getMoodBlendData(
+      this.camera.position.z,
+    );
+    if (moodBlend) {
+      this.experience.background.setMoodBlend(moodBlend);
+    }
+
+    this.experience.update(performance.now(), this.camera, this.scroll);
+  }
+
+  private getPlaneBackgroundColor(which: "first" | "last"): string {
+    const planes = this.experience.gallery.planes;
+    if (!planes.length) return "#002253";
+
+    const plane =
+      which === "first" ? planes[0] : planes[planes.length - 1];
+    return String(plane?.userData.backgroundColor ?? "#002253");
   }
 
   dispose(): void {

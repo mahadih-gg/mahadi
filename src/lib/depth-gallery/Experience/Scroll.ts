@@ -2,6 +2,11 @@ import * as THREE from "three";
 import type { PerspectiveCamera } from "three";
 import type { Gallery } from "@/lib/depth-gallery/Experience/Gallery";
 
+export type ScrollDriveMode = "wheel" | "scroll";
+
+/** Viewport heights per gallery plane for ScrollTrigger track length */
+const SCROLL_TRACK_VH_PER_PLANE = 0.85;
+
 export class Scroll {
   scrollTarget = 0;
   scrollCurrent = 0;
@@ -25,6 +30,9 @@ export class Scroll {
   private touchY = 0;
   private isActive = false;
   private isInitialized = false;
+  private driveMode: ScrollDriveMode = "wheel";
+  private normalizedProgress = 0;
+  private eventsBound = false;
 
   private readonly onWheel: (event: WheelEvent) => void;
   private readonly onTouchStart: (event: TouchEvent) => void;
@@ -36,7 +44,7 @@ export class Scroll {
   ) {
     this.cameraStartZ = this.camera.position.z;
     this.onWheel = (event) => {
-      if (!this.isActive) return;
+      if (this.driveMode !== "wheel" || !this.isActive) return;
       event.preventDefault()
       const normalizedWheelDelta = this.normalizeWheelDelta(event) * this.wheelScrollSpeed
       this.addScrollInput(normalizedWheelDelta)
@@ -45,6 +53,7 @@ export class Scroll {
       this.touchY = event.touches[0]?.clientY ?? 0
     }
     this.onTouchMove = (event) => {
+      if (this.driveMode !== "wheel" || !this.isActive) return;
       event.preventDefault()
       const currentTouchY = event.touches[0]?.clientY ?? this.touchY
       const deltaY = this.touchY - currentTouchY
@@ -53,8 +62,62 @@ export class Scroll {
     }
   }
 
+  setDriveMode(mode: ScrollDriveMode): void {
+    if (this.driveMode === mode) return;
+    this.driveMode = mode;
+
+    if (mode === "scroll") {
+      this.unbindEvents();
+      return;
+    }
+
+    this.bindEvents();
+  }
+
+  getDriveMode(): ScrollDriveMode {
+    return this.driveMode;
+  }
+
   setActive(isActive: boolean): void {
     this.isActive = isActive;
+  }
+
+  setNormalizedProgress(progress: number): void {
+    this.normalizedProgress = THREE.MathUtils.clamp(progress, 0, 1);
+    const minimumScroll = this.getMinimumScroll();
+    const maximumScroll = this.getMaximumScroll();
+    const target = THREE.MathUtils.lerp(
+      minimumScroll,
+      maximumScroll,
+      this.normalizedProgress,
+    );
+
+    this.scrollTarget = target;
+
+    if (this.driveMode === "scroll") {
+      this.scrollCurrent = target;
+    }
+  }
+
+  getNormalizedProgress(): number {
+    return this.normalizedProgress;
+  }
+
+  isComplete(): boolean {
+    return this.normalizedProgress >= 1 - 0.0001;
+  }
+
+  getScrollDistancePx(): number {
+    const planeCount = Math.max(this.gallery.planes.length, 1);
+    return planeCount * window.innerHeight * SCROLL_TRACK_VH_PER_PLANE;
+  }
+
+  private getMinimumScroll(): number {
+    return this.scrollFromCameraZ(this.maxCameraZ);
+  }
+
+  private getMaximumScroll(): number {
+    return this.scrollFromCameraZ(this.minCameraZ);
   }
 
   init(): void {
@@ -73,9 +136,21 @@ export class Scroll {
   }
 
   bindEvents(): void {
+    if (this.eventsBound || this.driveMode === "scroll") return;
+
     window.addEventListener('wheel', this.onWheel, { passive: false })
     window.addEventListener('touchstart', this.onTouchStart, { passive: true })
     window.addEventListener('touchmove', this.onTouchMove, { passive: false })
+    this.eventsBound = true;
+  }
+
+  unbindEvents(): void {
+    if (!this.eventsBound) return;
+
+    window.removeEventListener('wheel', this.onWheel)
+    window.removeEventListener('touchstart', this.onTouchStart)
+    window.removeEventListener('touchmove', this.onTouchMove)
+    this.eventsBound = false;
   }
 
   updateCameraBounds(): void {
@@ -122,11 +197,14 @@ export class Scroll {
 
   update(): void {
     this.updateCameraBounds()
-    this.scrollCurrent = THREE.MathUtils.lerp(
-      this.scrollCurrent,
-      this.scrollTarget,
-      this.scrollSmoothing
-    )
+
+    if (this.driveMode === "wheel") {
+      this.scrollCurrent = THREE.MathUtils.lerp(
+        this.scrollCurrent,
+        this.scrollTarget,
+        this.scrollSmoothing
+      )
+    }
 
     if (this.useScrollBounds) {
       const minimumScroll = this.scrollFromCameraZ(this.maxCameraZ)
@@ -148,8 +226,6 @@ export class Scroll {
   }
 
   dispose(): void {
-    window.removeEventListener('wheel', this.onWheel)
-    window.removeEventListener('touchstart', this.onTouchStart)
-    window.removeEventListener('touchmove', this.onTouchMove)
+    this.unbindEvents();
   }
 }

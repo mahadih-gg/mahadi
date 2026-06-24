@@ -1,19 +1,28 @@
 import type { Metadata } from "next";
-import { Potta_One, PT_Sans } from "next/font/google";
+import { Space_Grotesk, Syne, Unbounded } from "next/font/google";
 import AppProviders from "@/components/app-providers";
-import UnderwaterNav from "@/components/underwater-nav";
 import "./globals.css";
+import Navbar from "@/components/Navbar";
 
-const primary = PT_Sans({
+/** Bio, descriptions, nav */
+const fontBody = Space_Grotesk({
   variable: "--font-primary",
   subsets: ["latin"],
-  weight: ["400", "700"],
+  weight: ["300"],
 });
 
-const secondary = Potta_One({
+/** Name, section headers */
+const fontHeading = Syne({
   variable: "--font-secondary",
   subsets: ["latin"],
-  weight: ["400"],
+  weight: ["700"],
+});
+
+/** Hero statements, bold accents */
+const fontDisplay = Unbounded({
+  variable: "--font-display",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -29,10 +38,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${primary.variable} ${secondary.variable} antialiased`}
+        className={`${fontBody.variable} ${fontHeading.variable} ${fontDisplay.variable} antialiased`}
       >
         <AppProviders>
-          <UnderwaterNav />
+          <Navbar />
           {children}
         </AppProviders>
       </body>

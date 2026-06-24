@@ -66,7 +66,7 @@ export function GlowButton({
         </filter>
       </svg>
 
-      <div className="absolute dark:inset-[-9900%] dark:bg-[radial-gradient(circle_at_50%_50%,#0000_0,#0000_20%,#111111aa_50%)] bg-size-[3px_3px] -z-10" />
+      <div className="absolute inset-[-9900%] bg-[radial-gradient(circle_at_50%_50%,#0000_0,#0000_20%,#111111aa_50%)] bg-size-[3px_3px] -z-10" />
 
       <div className="relative">
         <div
