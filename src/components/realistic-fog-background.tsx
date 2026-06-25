@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
+import { useEffect, useRef } from "react";
 
 type RealisticFogBackgroundProps = {
   className?: string;
 };
 
-const FOG_SCALE = 0.4;
+const FOG_SCALE = 0.3;
 const BASE = { r: 13, g: 17, b: 23 };
 
 function fbm(x: number, y: number, t: number): number {

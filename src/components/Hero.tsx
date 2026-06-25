@@ -22,10 +22,6 @@ type ContactLink = {
   external?: boolean;
 };
 
-
-const HERO_TAGLINE =
-  "Experienced front-end engineer focused on building accessible and engaging digital experiences.";
-
 const HERO_CONTACT_LINKS: ContactLink[] = [
   {
     label: "mahadih.dev@gmail.com",
@@ -209,7 +205,7 @@ export default function Hero() {
           ref={taglineRef}
           className="mx-auto max-w-lg leading-relaxed text-muted-foreground opacity-0 text-base md:mx-0 md:text-xl"
         >
-          {HERO_TAGLINE}
+          Experienced <span className="font-medium text-white">front-end engineer</span> focused on building accessible and engaging digital experiences.
         </p>
 
         <nav

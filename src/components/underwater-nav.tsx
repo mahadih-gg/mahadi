@@ -97,10 +97,10 @@ export default function UnderwaterNav() {
 
   return (
 
-    <div className="relative z-[1]">
+    <div className="z-[1]">
       <button
         type="button"
-        className="nav-toggle inline-flex cursor-pointer border-none bg-transparent p-0 text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+        className="nav-toggle absolute left-1/2 -translate-x-1/2 inline-flex cursor-pointer border-none bg-transparent p-0 text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
         aria-label="Open menu"
         aria-expanded={isOpen}
         aria-controls="main-nav"
@@ -108,7 +108,7 @@ export default function UnderwaterNav() {
       >
         <svg aria-hidden width={28} height={20} viewBox="0 0 28 20">
           <rect x="0" y="2" width="28" height="2" fill="currentColor" />
-          <rect x="0" y="10" width="24" height="2" fill="currentColor" />
+          <rect x="4" y="10" width="20" height="2" fill="currentColor" />
           <rect x="0" y="18" width="28" height="2" fill="currentColor" />
         </svg>
       </button>

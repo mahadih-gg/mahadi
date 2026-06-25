@@ -4,7 +4,7 @@ const MahadiLogo = () => (
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 821 763"
-    className="w-12 h-auto"
+    className="w-8 md:w-10 h-auto"
   >
     <path
       fill="#FEFEFE"

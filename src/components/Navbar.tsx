@@ -10,11 +10,9 @@ const Navbar = () => {
   return (
     <div className="fixed flex justify-between items-center p-4 top-0 left-0 right-0 z-50">
 
-      <UnderwaterNav />
+      <MahadiLogo />
 
-      <div className="absolute left-1/2 -translate-x-1/2">
-        <MahadiLogo />
-      </div>
+      <UnderwaterNav />
 
       <MagneticButton onClick={() => window.open(href, "_blank")}>Resume</MagneticButton>
     </div>
