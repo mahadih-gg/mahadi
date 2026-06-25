@@ -14,6 +14,7 @@ export class Engine {
 
   isInitialized = false;
   isRunning = false;
+  private isDisposed = false;
   private animationFrameRequestId: number | null = null;
   private preloadedTextures = new Map<string, THREE.Texture>();
 
@@ -56,15 +57,19 @@ export class Engine {
   }
 
   async init(): Promise<void> {
-    if (this.isInitialized) return;
+    if (this.isInitialized || this.isDisposed) return;
 
     this.rootElement.classList.add("loading");
 
     try {
       this.preloadedTextures = await this.preloadTextures();
+      if (this.isDisposed) return;
+
       this.experience.gallery.setPreloadedTextures(this.preloadedTextures);
 
       await this.experience.init(this.scene, this.camera);
+      if (this.isDisposed) return;
+
       this.scroll.init();
 
       this.resize();
@@ -74,7 +79,9 @@ export class Engine {
       this.isInitialized = true;
       this.start();
     } finally {
-      this.rootElement.classList.remove("loading");
+      if (!this.isDisposed) {
+        this.rootElement.classList.remove("loading");
+      }
     }
   }
 
@@ -120,7 +127,7 @@ export class Engine {
   }
 
   private update(): void {
-    if (!this.isRunning) return;
+    if (!this.isRunning || this.isDisposed) return;
 
     this.animationFrameRequestId = requestAnimationFrame(this.animate);
 
@@ -188,6 +195,9 @@ export class Engine {
   }
 
   dispose(): void {
+    if (this.isDisposed) return;
+
+    this.isDisposed = true;
     this.isRunning = false;
 
     if (this.animationFrameRequestId !== null) {
@@ -197,11 +207,13 @@ export class Engine {
 
     window.removeEventListener("resize", this.onResize);
     this.scroll.dispose();
+    this.rootElement.classList.remove("loading");
 
     this.preloadedTextures.forEach((texture) => {
       texture.dispose();
     });
     this.preloadedTextures.clear();
     this.experience.dispose();
+    this.renderer.dispose();
   }
 }

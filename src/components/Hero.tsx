@@ -7,13 +7,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import gsap from "gsap";
+import { usePreloader } from "@/context/preloader-context";
+import {
+  easePower2InOut,
+  easePower3Out,
+} from "@/lib/motion-easing";
+import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
-import { useEffect, useRef } from "react";
 import { FaGithub, FaLinkedin } from "react-icons/fa6";
 import { HiOutlineEnvelope, HiOutlinePhone } from "react-icons/hi2";
 import { IconType } from "react-icons/lib";
-
 
 type ContactLink = {
   label: string;
@@ -47,122 +50,35 @@ const HERO_CONTACT_LINKS: ContactLink[] = [
   },
 ];
 
-
 export default function Hero() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const profileRef = useRef<HTMLDivElement>(null);
-  const firstNameRef = useRef<HTMLHeadingElement>(null);
-  const lastNameRef = useRef<HTMLHeadingElement>(null);
-  const taglineRef = useRef<HTMLParagraphElement>(null);
-  const contactRef = useRef<HTMLElement>(null);
-  const fogOverlayRef = useRef<HTMLDivElement>(null);
+  const { isComplete } = usePreloader();
+  const reduceMotion = useReducedMotion();
+  const visible = isComplete || reduceMotion;
 
-  useEffect(() => {
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-
-    const ctx = gsap.context(() => {
-      const revealTargets = [
-        profileRef.current,
-        firstNameRef.current,
-        lastNameRef.current,
-        taglineRef.current,
-        contactRef.current,
-        fogOverlayRef.current,
-      ];
-      if (reducedMotion) {
-        gsap.set(revealTargets, { opacity: 1, x: 0, y: 0, scale: 1 });
-        return;
-      }
-
-      gsap.set(profileRef.current, { opacity: 0, y: 48, scale: 1.04 });
-      gsap.set(firstNameRef.current, { opacity: 0, x: -36, y: 24 });
-      gsap.set(lastNameRef.current, { opacity: 0, x: 36, y: 24 });
-      gsap.set(taglineRef.current, { opacity: 0, y: 20 });
-      gsap.set(contactRef.current, { opacity: 0, y: 20 });
-      gsap.set(fogOverlayRef.current, { opacity: 1 });
-
-      const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
-
-      tl.to(
-        fogOverlayRef.current,
-        {
-          opacity: 0,
-          duration: 2.8,
-          ease: "power2.inOut",
-        },
-        0,
-      )
-        .to(
-          profileRef.current,
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 2,
-            ease: "power3.out",
-          },
-          0.5,
-        )
-        .to(
-          firstNameRef.current,
-          {
-            opacity: 1,
-            x: 0,
-            y: 0,
-            duration: 1.4,
-            ease: "power3.out",
-          },
-          1.1,
-        )
-        .to(
-          lastNameRef.current,
-          {
-            opacity: 1,
-            x: 0,
-            y: 0,
-            duration: 1.4,
-            ease: "power3.out",
-          },
-          1.1,
-        )
-        .to(
-          taglineRef.current,
-          {
-            opacity: 1,
-            y: 0,
-            duration: 1.2,
-            ease: "power3.out",
-          },
-          1.45,
-        )
-        .to(
-          contactRef.current,
-          {
-            opacity: 1,
-            y: 0,
-            duration: 1.2,
-            ease: "power3.out",
-          },
-          1.45,
-        );
-    }, sectionRef);
-
-    return () => ctx.revert();
-  }, []);
+  const instant = reduceMotion ? { duration: 0 } : undefined;
 
   return (
     <section
-      ref={sectionRef}
       className="relative min-h-screen overflow-hidden bg-background"
       aria-label="Hero"
     >
       <RealisticFogBackground className="z-1" />
 
-      <div
-        ref={profileRef}
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-5 flex items-end justify-center opacity-0"
+      <motion.div
+        initial={{ opacity: 0, y: 48, scale: 1.04 }}
+        animate={
+          visible
+            ? { opacity: 1, y: 0, scale: 1 }
+            : { opacity: 0, y: 48, scale: 1.04 }
+        }
+        transition={
+          instant ?? {
+            duration: 2,
+            delay: 0.5,
+            ease: easePower3Out,
+          }
+        }
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-5 flex items-end justify-center"
       >
         <div
           className="relative h-[95vh] w-fit max-w-[96vw]"
@@ -182,36 +98,82 @@ export default function Hero() {
             className="block h-full w-auto min-w-full object-cover md:object-contain object-bottom"
           />
         </div>
-      </div>
+      </motion.div>
 
       <div className="absolute inset-x-6 bottom-8 z-15 flex flex-col items-center gap-4 text-center md:inset-x-12 md:bottom-12 md:grid md:grid-cols-2 md:items-end md:gap-x-8 md:gap-y-5 md:text-left">
         <div className="flex flex-wrap items-baseline justify-center gap-x-[0.2em] md:contents">
-          <h1
-            ref={firstNameRef}
-            className="font-secondary text-[clamp(4.5rem,8vw,9rem)] leading-[0.95] font-bold tracking-tight text-foreground opacity-0"
+          <motion.h1
+            initial={{ opacity: 0, x: -36, y: 24 }}
+            animate={
+              visible
+                ? { opacity: 1, x: 0, y: 0 }
+                : { opacity: 0, x: -36, y: 24 }
+            }
+            transition={
+              instant ?? {
+                duration: 1.4,
+                delay: 1.1,
+                ease: easePower3Out,
+              }
+            }
+            className="font-secondary text-[clamp(4.5rem,8vw,9rem)] leading-[0.95] font-bold tracking-tight text-foreground"
           >
             Mahadi
-          </h1>
+          </motion.h1>
 
-          <h2
-            ref={lastNameRef}
-            className="font-secondary text-[clamp(4.5rem,8vw,9rem)] leading-[0.95] font-bold tracking-tight text-foreground opacity-0 md:text-right"
+          <motion.h2
+            initial={{ opacity: 0, x: 36, y: 24 }}
+            animate={
+              visible
+                ? { opacity: 1, x: 0, y: 0 }
+                : { opacity: 0, x: 36, y: 24 }
+            }
+            transition={
+              instant ?? {
+                duration: 1.4,
+                delay: 1.1,
+                ease: easePower3Out,
+              }
+            }
+            className="font-secondary text-[clamp(4.5rem,8vw,9rem)] leading-[0.95] font-bold tracking-tight text-foreground md:text-right"
           >
             Hasan
-          </h2>
+          </motion.h2>
         </div>
 
-        <p
-          ref={taglineRef}
-          className="mx-auto max-w-lg leading-relaxed text-muted-foreground opacity-0 text-base md:mx-0 md:text-xl"
+        <motion.p
+          initial={{ opacity: 0, y: 20 }}
+          animate={
+            visible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
+          }
+          transition={
+            instant ?? {
+              duration: 1.2,
+              delay: 1.45,
+              ease: easePower3Out,
+            }
+          }
+          className="mx-auto max-w-lg leading-relaxed text-muted-foreground text-base md:mx-0 md:text-xl"
         >
-          Experienced <span className="font-medium text-white">front-end engineer</span> focused on building accessible and engaging digital experiences.
-        </p>
+          Experienced{" "}
+          <span className="font-medium text-white">front-end engineer</span>{" "}
+          focused on building accessible and engaging digital experiences.
+        </motion.p>
 
-        <nav
-          ref={contactRef}
+        <motion.nav
+          initial={{ opacity: 0, y: 20 }}
+          animate={
+            visible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }
+          }
+          transition={
+            instant ?? {
+              duration: 1.2,
+              delay: 1.45,
+              ease: easePower3Out,
+            }
+          }
           aria-label="Contact links"
-          className="opacity-0 md:justify-self-end"
+          className="md:justify-self-end"
         >
           <TooltipProvider delayDuration={200}>
             <ul className="flex items-center justify-center gap-4 md:justify-start">
@@ -242,11 +204,19 @@ export default function Hero() {
               })}
             </ul>
           </TooltipProvider>
-        </nav>
+        </motion.nav>
       </div>
 
-      <div
-        ref={fogOverlayRef}
+      <motion.div
+        initial={{ opacity: 1 }}
+        animate={visible ? { opacity: 0 } : { opacity: 1 }}
+        transition={
+          instant ?? {
+            duration: 2.8,
+            delay: 0,
+            ease: easePower2InOut,
+          }
+        }
         className="pointer-events-none absolute inset-0 z-20 bg-background/70 backdrop-blur-[2px]"
         aria-hidden
       />

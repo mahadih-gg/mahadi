@@ -28,6 +28,11 @@
   --depth-color-link: #121212;
 }
 
+.depth-gallery.depth-gallery--active {
+  width: 100%;
+  max-width: 100%;
+}
+
 .depth-gallery .webgl {
   position: absolute;
   inset: 0;

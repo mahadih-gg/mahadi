@@ -10,6 +10,7 @@ type TrailParticle = {
 
 export class TrailHeadParticles {
   private readonly group = new THREE.Group();
+  private isDisposed = false;
   isEnabled = true;
   maxParticles = 18;
   spawnPerSecond = 20;
@@ -70,6 +71,8 @@ export class TrailHeadParticles {
     opacity = 1,
     shouldSpawn = true,
   ): void {
+    if (this.isDisposed || this.particles.length === 0) return;
+
     const safeDelta = Math.min(Math.max(deltaSeconds || 0, 0), 0.1) // Clamp unstable frame delta
 
     if (this.isEnabled && shouldSpawn && safeDelta > 0) {
@@ -107,7 +110,11 @@ export class TrailHeadParticles {
   }
 
   spawnParticle(headPosition: THREE.Vector3): void {
+    if (this.isDisposed || this.particles.length === 0) return;
+
     const particle = this.particles[this.nextSpawnIndex]
+    if (!particle) return;
+
     this.nextSpawnIndex = (this.nextSpawnIndex + 1) % this.particles.length
 
     const angle = Math.random() * Math.PI * 2
@@ -136,6 +143,11 @@ export class TrailHeadParticles {
   }
 
   dispose(): void {
+    if (this.isDisposed) return;
+
+    this.isDisposed = true;
+    this.isEnabled = false;
+    this.group.visible = false;
     this.clear()
     this.particles.forEach((particle) => {
       particle.mesh.material.dispose()

@@ -3,6 +3,7 @@
 import type { UnderwaterNavigationInstance } from "@/lib/underwater-nav/types";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 
 
@@ -35,6 +36,11 @@ export default function UnderwaterNav() {
 
   const navRef = useRef<HTMLElement>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const openMenu = useCallback(() => {
     setIsOpen(true);
@@ -47,7 +53,7 @@ export default function UnderwaterNav() {
   }, []);
 
   useEffect(() => {
-    if (!navRef.current) return;
+    if (!mounted || !navRef.current) return;
     const navEl = navRef.current;
 
     const reducedMotion = window.matchMedia(
@@ -93,14 +99,57 @@ export default function UnderwaterNav() {
         });
       }
     };
-  }, []);
+  }, [mounted]);
+
+  const navOverlay = (
+    <nav
+      ref={navRef}
+      id="main-nav"
+      aria-label="Main navigation"
+      aria-hidden={!isOpen}
+      className={cn(
+        "fixed inset-0 z-[10001] flex h-dvh w-screen items-center justify-center bg-background transition-opacity duration-300",
+        isOpen
+          ? "pointer-events-auto opacity-100 [&_*]:pointer-events-auto"
+          : "pointer-events-none opacity-0 [&_*]:pointer-events-none",
+      )}
+    >
+      <ul className="m-0 list-none p-0 text-center min-[40.063em]:sr-only">
+        {NAV_LINKS.map(({ label, href }) => (
+          <li key={href}>
+            <a
+              href={href}
+              onClick={closeMenu}
+              className="font-secondary text-[clamp(1.75rem,5vw,3.5rem)] text-primary no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+            >
+              {label}
+            </a>
+          </li>
+        ))}
+      </ul>
+
+      <button
+        type="button"
+        className="nav-toggle fixed top-8 left-1/2 z-[10003] -translate-x-1/2 cursor-pointer border-none bg-transparent p-0 text-primary"
+        aria-label="Close menu"
+        onClick={closeMenu}
+      >
+        <svg aria-hidden width={24} height={22} viewBox="0 0 24 22">
+          <path
+            fill="currentColor"
+            d="M11 9.586L20.192.393l1.415 1.415L12.414 11l9.193 9.192-1.415 1.415L11 12.414l-9.192 9.193-1.415-1.415L9.586 11 .393 1.808 1.808.393 11 9.586z"
+          />
+        </svg>
+      </button>
+    </nav>
+  );
 
   return (
 
-    <div className="z-[1]">
+    <div className="relative z-[1] flex flex-1 justify-center">
       <button
         type="button"
-        className="nav-toggle absolute left-1/2 -translate-x-1/2 inline-flex cursor-pointer border-none bg-transparent p-0 text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+        className="nav-toggle inline-flex cursor-pointer border-none bg-transparent p-0 text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
         aria-label="Open menu"
         aria-expanded={isOpen}
         aria-controls="main-nav"
@@ -113,47 +162,7 @@ export default function UnderwaterNav() {
         </svg>
       </button>
 
-      <nav
-        ref={navRef}
-        id="main-nav"
-        aria-label="Main navigation"
-        aria-hidden={!isOpen}
-        className={cn(
-          "fixed inset-0 z-[10001] flex h-full w-full items-center justify-center bg-background transition-opacity duration-300",
-          isOpen
-            ? "pointer-events-auto opacity-100 [&_*]:pointer-events-auto"
-            : "pointer-events-none opacity-0 [&_*]:pointer-events-none",
-        )}
-      >
-        <ul className="m-0 list-none p-0 text-center min-[40.063em]:sr-only">
-          {NAV_LINKS.map(({ label, href }) => (
-            <li key={href}>
-              <a
-                href={href}
-                onClick={closeMenu}
-                className="font-secondary text-[clamp(1.75rem,5vw,3.5rem)] text-primary no-underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
-              >
-                {label}
-              </a>
-            </li>
-          ))}
-        </ul>
-
-        <button
-          type="button"
-          className="nav-toggle fixed top-8 left-1/2 z-[10003] -translate-x-1/2 cursor-pointer border-none bg-transparent p-0 text-primary"
-          aria-label="Close menu"
-          onClick={closeMenu}
-        >
-
-          <svg aria-hidden width={24} height={22} viewBox="0 0 24 22">
-            <path
-              fill="currentColor"
-              d="M11 9.586L20.192.393l1.415 1.415L12.414 11l9.193 9.192-1.415 1.415L11 12.414l-9.192 9.193-1.415-1.415L9.586 11 .393 1.808 1.808.393 11 9.586z"
-            />
-          </svg>
-        </button>
-      </nav>
+      {mounted ? createPortal(navOverlay, document.body) : null}
     </div>
   );
 }

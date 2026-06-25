@@ -1,6 +1,7 @@
 "use client";
 
 import { useInteractiveCursor } from "@/context/interactive-cursor-context";
+import { usePreloader } from "@/context/preloader-context";
 import { Engine } from "@/lib/depth-gallery/Experience/Engine";
 import { Experience } from "@/lib/depth-gallery/Experience/index";
 import { experienceRoles } from "@/lib/depth-gallery/data/galleryData";
@@ -14,6 +15,7 @@ export default function ExperienceSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { setExperienceInView } = useInteractiveCursor();
+  const { isComplete: isPreloaderComplete } = usePreloader();
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -47,6 +49,24 @@ export default function ExperienceSection() {
     const onResize = () => {
       engine.resize();
       ScrollTrigger.refresh();
+      syncPinnedLayout();
+    };
+
+    const syncPinnedLayout = () => {
+      const trigger = ScrollTrigger.getById("experience-pin");
+      if (!trigger?.isActive) return;
+
+      const viewportWidth = `${document.documentElement.clientWidth}px`;
+      section.style.width = viewportWidth;
+      section.style.maxWidth = viewportWidth;
+      section.style.left = "0px";
+      engine.resize();
+    };
+
+    const clearPinnedLayout = () => {
+      section.style.width = "";
+      section.style.maxWidth = "";
+      section.style.left = "";
     };
 
     const setup = async () => {
@@ -68,17 +88,26 @@ export default function ExperienceSection() {
             start: "top top",
             end: `+=${scrollDistance}`,
             pin: true,
+            pinType: "fixed",
             pinSpacing: true,
             scrub: true,
+            invalidateOnRefresh: true,
+            onRefresh: (self) => {
+              if (self.isActive) {
+                syncPinnedLayout();
+              }
+            },
             onEnter: (self) => {
               setResting(false);
               engine.setScrollProgress(self.progress);
               setPinnedActive(true);
+              syncPinnedLayout();
             },
             onEnterBack: (self) => {
               setResting(false);
               engine.setScrollProgress(self.progress);
               setPinnedActive(true);
+              syncPinnedLayout();
             },
             onUpdate: (self) => {
               engine.setScrollProgress(self.progress);
@@ -86,10 +115,12 @@ export default function ExperienceSection() {
             onLeave: () => {
               setPinnedActive(false);
               setResting(true);
+              clearPinnedLayout();
             },
             onLeaveBack: () => {
               setPinnedActive(false);
               setResting(false);
+              clearPinnedLayout();
             },
           });
 
@@ -113,7 +144,6 @@ export default function ExperienceSection() {
     setup();
 
     return () => {
-      if (disposed) return;
       disposed = true;
       window.removeEventListener("resize", onResize);
       gsapContext?.revert();
@@ -121,12 +151,20 @@ export default function ExperienceSection() {
         "depth-gallery--active",
         "depth-gallery--resting",
         "depth-gallery--primed",
+        "loading",
       );
       section.style.backgroundColor = "";
+      clearPinnedLayout();
       setExperienceInView(false);
       engine.dispose();
     };
   }, [setExperienceInView]);
+
+  useEffect(() => {
+    if (!isPreloaderComplete) return;
+
+    ScrollTrigger.refresh();
+  }, [isPreloaderComplete]);
 
   return (
     <section

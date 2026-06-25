@@ -1,11 +1,13 @@
 "use client";
 
-import gsap from "gsap";
-import { useEffect, useRef, useState } from "react";
-import type { IconType } from "react-icons";
-
-
+import { easePower2In, easePower3Out } from "@/lib/motion-easing";
 import { cn } from "@/lib/utils";
+import {
+  AnimatePresence,
+  motion,
+  useReducedMotion,
+} from "motion/react";
+import { useEffect, useRef, useState } from "react";
 
 export const HERO_HIGHLIGHTS = [
   "4+ years of front-end development experience. Focusing on Front-end architecture, codebase structuring, and front-end scalability for long-term maintainability.",
@@ -13,7 +15,6 @@ export const HERO_HIGHLIGHTS = [
   "Proficiency in React JS, Next JS, JavaScript, Tailwind CSS, SASS, responsive and adaptive design with best practices. And expertise in implementing modern, advanced animations.",
   "Proficient in Agile/Scrum, actively involved in sprint planning, daily stand-ups, and retrospective meetings to align projects with business objectives and timelines.",
 ] as const;
-
 
 type HeroHighlightsProps = {
   items?: readonly string[];
@@ -28,135 +29,75 @@ export function HeroHighlights({
   revealDelay = 1.65,
   className,
 }: HeroHighlightsProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const linksRef = useRef<HTMLUListElement>(null);
-  const itemRef = useRef<HTMLLIElement>(null);
-  const indexRef = useRef(0);
-  const isAnimatingRef = useRef(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [revealed, setRevealed] = useState(false);
+  const isFirstRevealRef = useRef(true);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
-    const el = itemRef.current;
-    const linkItems =
-      linksRef.current?.querySelectorAll<HTMLAnchorElement>("a") ?? [];
-    if (!el) return;
-
-    if (reducedMotion) {
-      gsap.set(el, { opacity: 1, x: 0, y: 0 });
-      if (linkItems.length) {
-        gsap.set(linkItems, { opacity: 1, y: 0 });
-      }
+    if (reduceMotion) {
+      setRevealed(true);
       return;
     }
 
-    gsap.set(el, { opacity: 0, y: 24, x: 0 });
-    if (linkItems.length) {
-      gsap.set(linkItems, { opacity: 0, y: 16 });
-    }
+    const timer = window.setTimeout(() => {
+      setRevealed(true);
+    }, revealDelay * 1000);
 
-    gsap.to(el, {
-      opacity: 1,
-      y: 0,
-      duration: 1,
-      ease: "power3.out",
-      delay: revealDelay,
-    });
-
-    if (linkItems.length) {
-      gsap.to(linkItems, {
-        opacity: 1,
-        y: 0,
-        duration: 0.8,
-        stagger: 0.08,
-        ease: "power3.out",
-        delay: revealDelay - 0.15,
-      });
-    }
-  }, [revealDelay]);
+    return () => window.clearTimeout(timer);
+  }, [reduceMotion, revealDelay]);
 
   useEffect(() => {
-    if (items.length <= 1) return;
+    if (items.length <= 1 || reduceMotion) {
+      return;
+    }
 
-    const reducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)",
-    ).matches;
+    const timer = window.setInterval(() => {
+      isFirstRevealRef.current = false;
+      setActiveIndex((current) => (current + 1) % items.length);
+    }, interval);
 
-    const animateToNext = () => {
-      const el = itemRef.current;
-      if (!el || isAnimatingRef.current) return;
+    return () => window.clearInterval(timer);
+  }, [items.length, interval, reduceMotion]);
 
-      const nextIndex = (indexRef.current + 1) % items.length;
+  const enterTransition = reduceMotion
+    ? { duration: 0 }
+    : {
+        duration: isFirstRevealRef.current ? 1 : 0.6,
+        ease: easePower3Out,
+      };
 
-      if (reducedMotion) {
-        indexRef.current = nextIndex;
-        setActiveIndex(nextIndex);
-        return;
-      }
-
-      isAnimatingRef.current = true;
-
-      gsap.to(el, {
-        opacity: 0,
-        y: -24,
-        x: 0,
-        duration: 0.45,
-        ease: "power2.in",
-        onComplete: () => {
-          indexRef.current = nextIndex;
-          setActiveIndex(nextIndex);
-
-          gsap.fromTo(
-            el,
-            { opacity: 0, y: 24, x: 0 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.6,
-              ease: "power3.out",
-              onComplete: () => {
-                isAnimatingRef.current = false;
-              },
-            },
-          );
-        },
-      });
-    };
-
-    const timer = window.setInterval(animateToNext, interval);
-
-    return () => {
-      window.clearInterval(timer);
-      gsap.killTweensOf(itemRef.current);
-      isAnimatingRef.current = false;
-    };
-  }, [items, interval]);
+  const exitTransition = reduceMotion
+    ? { duration: 0 }
+    : { duration: 0.45, ease: easePower2In };
 
   return (
     <div
-      ref={containerRef}
       className={cn(
         "absolute right-6 bottom-8 z-15 flex max-w-xs flex-col gap-5 md:right-12 md:bottom-12 md:max-w-md md:gap-6 lg:max-w-lg",
         className,
       )}
     >
-
-      {/* <ul aria-label="Professional highlights" aria-live="polite">
-        <li
-          ref={itemRef}
-          className="flex min-h-18 gap-3 leading-relaxed text-muted-foreground opacity-0 text-xs md:min-h-22 md:text-base"
-        >
-          <span
-            className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary"
-            aria-hidden
-          />
-          <span>{items[activeIndex]}</span>
-        </li>
-      </ul> */}
-
-
+      <ul aria-label="Professional highlights" aria-live="polite">
+        <AnimatePresence mode="wait">
+          {revealed && (
+            <motion.li
+              key={activeIndex}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -24, transition: exitTransition }}
+              transition={enterTransition}
+              className="flex min-h-18 gap-3 leading-relaxed text-muted-foreground text-xs md:min-h-22 md:text-base"
+            >
+              <span
+                className="mt-1.5 size-1.5 shrink-0 rounded-full bg-primary"
+                aria-hidden
+              />
+              <span>{items[activeIndex]}</span>
+            </motion.li>
+          )}
+        </AnimatePresence>
+      </ul>
     </div>
   );
 }
