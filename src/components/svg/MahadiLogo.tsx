@@ -1,10 +1,11 @@
+import { cn } from "@/lib/utils";
 
-const MahadiLogo = () => (
+const MahadiLogo = ({ className }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     fill="none"
     viewBox="0 0 821 763"
-    className="w-8 md:w-10 h-auto"
+    className={cn("w-8 md:w-10 h-auto", className)}
   >
     <path
       fill="#FEFEFE"

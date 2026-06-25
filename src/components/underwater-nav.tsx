@@ -32,7 +32,7 @@ function loadScript(src: string): Promise<void> {
   });
 }
 
-export default function UnderwaterNav() {
+export default function UnderwaterNav({ isScrolled }: { isScrolled: boolean }) {
 
   const navRef = useRef<HTMLElement>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -146,23 +146,23 @@ export default function UnderwaterNav() {
 
   return (
 
-    <div className="relative z-[1] flex flex-1 justify-center">
+    <>
       <button
         type="button"
-        className="nav-toggle inline-flex cursor-pointer border-none bg-transparent p-0 text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
+        className={cn("nav-toggle absolute left-1/2 -translate-x-1/2 z-[1] inline-flex cursor-pointer border-none bg-transparent p-0 group focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary transition-all duration-500 size-12 rounded-full flex items-center justify-center", isScrolled && "bg-background/70 backdrop-blur-md")}
         aria-label="Open menu"
         aria-expanded={isOpen}
         aria-controls="main-nav"
         onClick={openMenu}
       >
-        <svg aria-hidden width={28} height={20} viewBox="0 0 28 20">
-          <rect x="0" y="2" width="28" height="2" fill="currentColor" />
-          <rect x="4" y="10" width="20" height="2" fill="currentColor" />
-          <rect x="0" y="18" width="28" height="2" fill="currentColor" />
-        </svg>
+        <span className="flex h-5 w-7 flex-col justify-between" aria-hidden>
+          <span className="h-0.5 w-full bg-foreground group-hover:bg-primary group-hover:translate-x-2 transition-all duration-500" />
+          <span className="mx-auto h-0.5 w-5 bg-foreground group-hover:bg-primary group-hover:w-full group-hover:translate-x-1 transition-all duration-500" />
+          <span className="h-0.5 w-full bg-foreground group-hover:bg-primary transition-all duration-500" />
+        </span>
       </button>
 
       {mounted ? createPortal(navOverlay, document.body) : null}
-    </div>
+    </>
   );
 }

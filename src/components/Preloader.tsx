@@ -51,8 +51,22 @@ export default function Preloader() {
           { duration: 0.4, ease: easePower2Out, delay: 1.05 },
         ),
         animate(
+          ".preloader-dot",
+          {
+            opacity: [0, 1, 0.35, 1],
+            y: [-28, 6, -3, 0],
+            scale: [0, 1.2, 0.92, 1],
+          },
+          {
+            duration: 0.55,
+            ease: easePower2Out,
+            delay: 1.05,
+            times: [0, 0.45, 0.7, 1],
+          },
+        ),
+        animate(
           ".preloader-logo",
-          { scale: [1, 1.06, 1] },
+          { opacity: 1 },
           { duration: 0.7, ease: easePower2InOut, delay: 1.25 },
         ),
       ]);

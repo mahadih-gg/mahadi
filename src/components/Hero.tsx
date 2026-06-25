@@ -81,7 +81,7 @@ export default function Hero() {
         className="pointer-events-none absolute inset-x-0 bottom-0 z-5 flex items-end justify-center"
       >
         <div
-          className="relative h-[95vh] w-fit max-w-[96vw]"
+          className="relative h-[95vh] w-fit max-w-[100vw] md:max-w-[96vw]"
           style={{
             WebkitMaskImage:
               "linear-gradient(to top, transparent 0%, rgba(0,0,0,0.25) 8%, rgba(0,0,0,0.85) 28%, black 48%)",
@@ -101,7 +101,7 @@ export default function Hero() {
       </motion.div>
 
       <div className="absolute inset-x-6 bottom-8 z-15 flex flex-col items-center gap-4 text-center md:inset-x-12 md:bottom-12 md:grid md:grid-cols-2 md:items-end md:gap-x-8 md:gap-y-5 md:text-left">
-        <div className="flex flex-wrap items-baseline justify-center gap-x-[0.2em] md:contents">
+        <div className="flex flex-wrap items-baseline justify-center gap-x-[1em] md:contents">
           <motion.h1
             initial={{ opacity: 0, x: -36, y: 24 }}
             animate={
