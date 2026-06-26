@@ -1,8 +1,8 @@
+import AppProviders from "@/components/app-providers";
+import Navbar from "@/components/Navbar";
 import type { Metadata } from "next";
 import { Space_Grotesk, Syne, Unbounded } from "next/font/google";
-import AppProviders from "@/components/app-providers";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
 
 /** Bio, descriptions, nav */
 const fontBody = Space_Grotesk({
@@ -43,6 +43,10 @@ export default function RootLayout({
         <AppProviders>
           <Navbar />
           {children}
+
+          <div className="fixed bottom-5 right-5 opacity-40">
+            <p className="py-2 px-5 font-semibold bg-primary text-primary-foreground rounded-full">In Development</p>
+          </div>
         </AppProviders>
       </body>
     </html>
