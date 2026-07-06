@@ -1,6 +1,5 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "../styles/depth-gallery.css";
 @source "../lib/underwater-nav/runtime.js";
 
 @theme inline {

@@ -59,7 +59,7 @@ export default function Hero() {
 
   return (
     <section
-      className="relative min-h-screen overflow-hidden bg-background"
+      className="relative min-h-screen overflow-hidden"
       aria-label="Hero"
     >
       <RealisticFogBackground className="z-1" />
