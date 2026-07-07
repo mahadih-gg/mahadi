@@ -23,4 +23,10 @@ export type Project = {
   heroImage: string;
   showcaseImages: string[];
   sections: ProjectSection[];
+  /** Category label for the gallery panel; defaults to `tags[0]` when omitted. */
+  category?: string;
+  /** Tech badges shown in the gallery's focused detail panel. */
+  techStack?: string[];
+  /** Public repo URL; omit to hide the GitHub button in the gallery. */
+  githubUrl?: string;
 };

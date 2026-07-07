@@ -1,0 +1,53 @@
+/* Museum-style Projects Gallery: background atmosphere + frame chrome. */
+
+.gallery-section {
+  --gallery-bg: #07070a;
+  background-color: var(--gallery-bg);
+}
+
+.gallery-grain {
+  position: absolute;
+  inset: -200px;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 160px 160px;
+}
+
+.gallery-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, transparent 35%, rgba(0, 0, 0, 0.55) 100%),
+    radial-gradient(ellipse at center, rgba(88, 166, 255, 0.05), transparent 60%);
+}
+
+.gallery-spotlight {
+  position: absolute;
+  top: 50%;
+  width: min(60vw, 900px);
+  height: min(60vw, 900px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.03) 35%,
+    transparent 70%
+  );
+  filter: blur(20px);
+  transition: opacity 0.6s ease;
+}
+
+.gallery-frame {
+  transform-style: preserve-3d;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gallery-spotlight {
+    transition: none;
+  }
+}

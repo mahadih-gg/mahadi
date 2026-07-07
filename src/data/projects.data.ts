@@ -13,6 +13,7 @@ export const projects: Project[] = [
     heroDescription:
       "Horizon Shorts is a super-engagement platform for short-form video. It lets brands and publishers manage, distribute, and measure short-form content in their websites and apps via configurable entry points, a video library, campaigns, and UGC (polls, comments, reports).",
     visitUrl: "https://horizonexp.com",
+    techStack: ["Next.js", "React", "Tailwind CSS", "Radix UI", "Motion", "GraphQL"],
     heroImage: "/assets/images/projects/horizon/base.webp",
     showcaseImages: [
       "/assets/images/projects/horizon/s1.webp",
@@ -76,6 +77,7 @@ export const projects: Project[] = [
     heroDescription:
       "GameStories is an innovative educational platform that transforms reading practice into interactive storytelling adventures. Designed for students from grades 1–8, the platform allows children to create unique characters, generate AI-powered stories, and experience their adventures as playable game scenes. By blending storytelling, language practice, and gamified gameplay, GameStories encourages children to build stronger reading skills while exploring their creativity and imagination.",
     visitUrl: "https://gamestories.com",
+    techStack: ["React", "React Router", "Tailwind CSS", "ShadCN", "TanStack Query"],
     heroImage: "/assets/images/projects/gamestories/base.webp",
     showcaseImages: [
       "/assets/images/projects/gamestories/s1.webp",
@@ -132,7 +134,8 @@ export const projects: Project[] = [
     accent: "#16a34a",
     heroDescription:
       "LitZone is an innovative educational platform designed to transform children's love of sports into a powerful learning experience. Built for students aged 8–14, the platform combines sports news, real player statistics, quizzes, and gamified competitions to improve reading comprehension, math skills, and overall engagement with learning. Through an interactive fantasy-style system, students build teams, complete challenges, and earn rewards while exploring real-world sports content.",
-    visitUrl: "https://litzone.com",
+    visitUrl: "https://www.litzonesports.com/",
+    techStack: ["React Native", "TypeScript", "Gamified Fantasy Engine", "Cross-platform"],
     heroImage: "/assets/images/projects/litzone/base.webp",
     showcaseImages: [
       "/assets/images/projects/litzone/s1.webp",
@@ -192,6 +195,7 @@ export const projects: Project[] = [
     heroDescription:
       "Beauty Care BD is a production-ready single-vendor e-commerce storefront for beauty.com.bd. It delivers a full shopping experience—product discovery, campaigns and flash sales, cart and checkout, bKash and cash-on-delivery payments, customer accounts, order tracking, and SEO/analytics—powered by a headless REST API and CMS-driven site settings.",
     visitUrl: "https://beauty.com.bd",
+    techStack: ["Next.js 16", "React 19", "Tailwind CSS v4", "shadcn/ui", "TanStack Query", "NextAuth"],
     heroImage: "/assets/images/projects/beauty-care-bd/base.webp",
     showcaseImages: [
       "/assets/images/projects/beauty-care-bd/s1.webp",
@@ -253,4 +257,9 @@ export function getAllProjectSlugs(): string[] {
   return projects
     .filter((project) => project.sections.length > 0 && project.heroImage)
     .map((project) => project.slug);
+}
+
+/** Resolves the display category for a project, falling back to its first tag. */
+export function getProjectCategory(project: Project): string {
+  return project.category ?? project.tags[0] ?? "Project";
 }

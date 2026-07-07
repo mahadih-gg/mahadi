@@ -21,9 +21,12 @@ export default function ExperiencePageLine() {
   useLayoutEffect(() => {
     const container = containerRef.current;
     const path = pathRef.current;
-    const main = container?.closest("main");
+    // Scoped to the Experience section itself (not the outer <main>) so the
+    // draw animation's scroll range is unaffected by whatever else is on
+    // the page before it (e.g. the pinned Projects Gallery).
+    const sectionEl = document.getElementById("experience");
     const track = document.querySelector<HTMLElement>("[data-exp-track]");
-    if (!container || !path || !main || !track) return;
+    if (!container || !path || !sectionEl || !track) return;
 
     const reducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
@@ -31,7 +34,7 @@ export default function ExperiencePageLine() {
 
     return reducedMotion
       ? renderStaticExperiencePath({ container, track, path })
-      : createExperienceAnimation({ container, main, track, path });
+      : createExperienceAnimation({ container, sectionEl, track, path });
   }, []);
 
   useEffect(() => {

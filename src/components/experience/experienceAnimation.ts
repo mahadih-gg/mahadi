@@ -6,8 +6,8 @@ gsap.registerPlugin(ScrollTrigger);
 export type ExperienceAnimationElements = {
   /** Full-page overlay that holds the SVG */
   container: HTMLElement;
-  /** `<main>` — scroll range for the path draw */
-  main: HTMLElement;
+  /** Experience `<section>` — scroll range for the path draw, independent of whatever precedes it on the page */
+  sectionEl: HTMLElement;
   /** Timeline track — node anchors for path routing */
   track: HTMLElement;
   path: SVGPathElement;
@@ -131,12 +131,13 @@ export function renderStaticExperiencePath({
 }
 
 /**
- * Scroll experience: path draws from page top on scroll. Company details stay
- * static with no reveal or glow. Returns a cleanup function.
+ * Scroll experience: path draws as the Experience section itself scrolls
+ * through, regardless of how much content precedes it on the page. Company
+ * details stay static with no reveal or glow. Returns a cleanup function.
  */
 export function createExperienceAnimation({
   container,
-  main,
+  sectionEl,
   track,
   path,
 }: ExperienceAnimationElements): () => void {
@@ -160,7 +161,7 @@ export function createExperienceAnimation({
     const drawTimeline = gsap.timeline({
       defaults: { ease: "none" },
       scrollTrigger: {
-        trigger: main,
+        trigger: sectionEl,
         start: "top top",
         endTrigger: track,
         end: "bottom bottom",
@@ -187,7 +188,7 @@ export function createExperienceAnimation({
 
     observer = new ResizeObserver(onResize);
     observer.observe(container);
-  }, main);
+  }, sectionEl);
 
   return () => {
     observer?.disconnect();
