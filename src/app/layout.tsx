@@ -1,4 +1,5 @@
 import AppProviders from "@/components/app-providers";
+import LenisProvider from "@/components/lenis-provider";
 import Navbar from "@/components/Navbar";
 import type { Metadata } from "next";
 import { Space_Grotesk, Syne, Unbounded } from "next/font/google";
@@ -40,14 +41,16 @@ export default function RootLayout({
       <body
         className={`${fontBody.variable} ${fontHeading.variable} ${fontDisplay.variable} antialiased`}
       >
-        <AppProviders>
-          <Navbar />
-          {children}
+        <LenisProvider>
+          <AppProviders>
+            <Navbar />
+            {children}
 
-          <div className="fixed bottom-5 right-5 opacity-40">
-            <p className="py-2 px-5 font-semibold bg-primary text-primary-foreground rounded-full">In Development</p>
-          </div>
-        </AppProviders>
+            <div className="fixed bottom-5 right-5 opacity-40">
+              <p className="py-2 px-5 font-semibold bg-primary text-primary-foreground rounded-full">In Development</p>
+            </div>
+          </AppProviders>
+        </LenisProvider>
       </body>
     </html>
   );

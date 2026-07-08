@@ -5,7 +5,8 @@ type GlowProps = {
 };
 
 /**
- * The glowing orb that travels along the SVG path (via MotionPathPlugin).
+ * The glowing orb that travels along the SVG path, positioned every scroll
+ * tick via `path.getPointAtLength()` (see experienceAnimation.ts).
  *
  * Three stacked layers create the bloom:
  *  - outer glow: large, blur 35px
@@ -19,7 +20,7 @@ export default function Glow({ glowRef }: GlowProps) {
   return (
     <div
       ref={glowRef}
-      className="pointer-events-none absolute top-0 left-0 z-[5] size-5 will-change-transform"
+      className="pointer-events-none absolute top-0 left-0 z-[5] size-5 opacity-0 will-change-transform"
       aria-hidden
     >
       <span

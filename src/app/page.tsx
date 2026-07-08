@@ -1,3 +1,4 @@
+import AboutMe from "@/components/about/AboutMe";
 import Hero from "@/components/Hero";
 import Experience from "@/components/experience/Experience";
 import ExperiencePageLine from "@/components/experience/ExperiencePageLine";
@@ -7,10 +8,17 @@ export default function Home() {
   return (
     <main className="relative bg-background">
       <ExperiencePageLine />
-      <div className="relative z-10">
+      {/* No z-index here on purpose: a stacking context would trap the About
+          cards' z-50 below the SVG line overlay (z-40). Leaving this wrapper
+          context-free lets per-section z-index compete directly with the
+          line — About cards (z-50) sit above it, the Experience timeline
+          (z-10) stays under it. Hero and the gallery isolate their own
+          internal layers so nothing leaks out. */}
+      <div className="relative">
         <Hero />
-        <ProjectsGallery />
+        <AboutMe />
         <Experience />
+        <ProjectsGallery />
       </div>
     </main>
   );

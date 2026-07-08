@@ -1,6 +1,7 @@
 "use client";
 
 import ExperiencePath from "@/components/experience/ExperiencePath";
+import Glow from "@/components/experience/Glow";
 import {
   createExperienceAnimation,
   renderStaticExperiencePath,
@@ -10,21 +11,23 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useEffect, useLayoutEffect, useRef } from "react";
 
 /**
- * Full-page SVG line overlay: path draws from the document top on scroll.
- * Sits at z-0 on `<main>` so the hero fog (z-1) renders on top.
+ * Full-page SVG line overlay: the path draws from the top of the Projects
+ * gallery down through the Experience timeline as the page scrolls. Sits
+ * above section content (z-40) so it reads over the gallery's opaque
+ * backdrop as well as the Experience cards.
  */
 export default function ExperiencePageLine() {
   const containerRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
   const { isComplete: isPreloaderComplete } = usePreloader();
 
   useLayoutEffect(() => {
     const container = containerRef.current;
     const path = pathRef.current;
-    // Scoped to the Experience section itself (not the outer <main>) so the
-    // draw animation's scroll range is unaffected by whatever else is on
-    // the page before it (e.g. the pinned Projects Gallery).
+    const glow = glowRef.current;
     const sectionEl = document.getElementById("experience");
+    const heroEl = document.querySelector<HTMLElement>('[aria-label="Hero"]');
     const track = document.querySelector<HTMLElement>("[data-exp-track]");
     if (!container || !path || !sectionEl || !track) return;
 
@@ -33,8 +36,15 @@ export default function ExperiencePageLine() {
     ).matches;
 
     return reducedMotion
-      ? renderStaticExperiencePath({ container, track, path })
-      : createExperienceAnimation({ container, sectionEl, track, path });
+      ? renderStaticExperiencePath({ container, heroEl, track, path })
+      : createExperienceAnimation({
+        container,
+        heroEl,
+        sectionEl,
+        track,
+        path,
+        glow,
+      });
   }, []);
 
   useEffect(() => {
@@ -45,10 +55,11 @@ export default function ExperiencePageLine() {
   return (
     <div
       ref={containerRef}
-      className="pointer-events-none absolute inset-0 z-0"
+      className="pointer-events-none absolute inset-0 z-40"
       aria-hidden
     >
       <ExperiencePath pathRef={pathRef} />
+      <Glow glowRef={glowRef} />
     </div>
   );
 }

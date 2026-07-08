@@ -3,8 +3,8 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { type RefObject, useLayoutEffect, useRef, useState } from "react";
-import { getCameraOffsetForProject, getOverviewStageScale } from "./layout";
 import { frameStateFor } from "./frameStates";
+import { getCameraOffsetForProject, getOverviewStageScale } from "./layout";
 
 gsap.registerPlugin(ScrollTrigger);
 

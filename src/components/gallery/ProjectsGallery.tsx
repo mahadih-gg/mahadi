@@ -108,7 +108,7 @@ export default function ProjectsGallery() {
       ref={sectionRef}
       id="projects"
       aria-label="Projects gallery"
-      className="gallery-section relative h-screen w-full overflow-hidden"
+      className="gallery-section relative h-screen w-full overflow-hidden isolate"
     >
       <div className="gallery-vignette" />
       <div className="gallery-grain" />

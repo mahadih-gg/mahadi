@@ -36,8 +36,8 @@ const FRAME_STATE: Record<FrameStateName, FrameStateValues> = {
   },
   overview: {
     scale: 0.92,
-    opacity: 0.8,
-    filter: "blur(2.5px) brightness(0.86)",
+    opacity: 1,
+    filter: "blur(0px) brightness(1)",
     boxShadow:
       "0 20px 50px -18px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.055)",
   },

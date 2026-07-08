@@ -59,7 +59,7 @@ function DetailContent({
       initial={h}
       animate={v}
       exit={h}
-      className="pointer-events-auto"
+      className="pointer-events-auto max-w-2xl"
     >
       <motion.span
         variants={reduceMotion ? undefined : itemVariants}
@@ -86,7 +86,7 @@ function DetailContent({
         variants={reduceMotion ? undefined : containerVariants}
         className={cn(
           "mt-6 flex flex-wrap gap-2",
-          align === "right" && "justify-end",
+          align === "left" && "justify-end",
           align === "center" && "justify-center",
         )}
       >
@@ -105,7 +105,7 @@ function DetailContent({
         variants={reduceMotion ? undefined : itemVariants}
         className={cn(
           "mt-8 flex flex-wrap items-center gap-4",
-          align === "right" && "justify-end",
+          align === "left" && "justify-end",
           align === "center" && "justify-center",
         )}
       >
@@ -143,14 +143,14 @@ export default function ProjectDetailPanel({
   return (
     <div
       className={cn(
-        "pointer-events-none absolute inset-0 hidden items-center md:flex",
-        side === "left" ? "justify-start" : "justify-end",
+        "pointer-events-none absolute inset-y-0 hidden items-center md:flex",
+        side === "left" ? "left-[15%]" : "right-[15%]",
       )}
     >
       <div
         className={cn(
-          "w-full max-w-md px-10 lg:max-w-lg lg:px-16",
-          side === "right" && "text-right",
+          "w-full px-2 lg:px-4",
+          side === "left" && "text-right",
         )}
       >
         <AnimatePresence mode="wait">

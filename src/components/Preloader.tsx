@@ -8,8 +8,12 @@ import {
   easePower2Out,
   easePower3InOut,
 } from "@/lib/motion-easing";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useAnimate, useReducedMotion } from "motion/react";
 import { useEffect, useState } from "react";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export default function Preloader() {
   const [scope, animate] = useAnimate<HTMLDivElement>();
@@ -102,6 +106,11 @@ export default function Preloader() {
       if (mainContent) {
         mainContent.style.transform = "";
         mainContent.style.transformOrigin = "";
+        // The reveal scale (0.96 -> 1) shrank every measurement taken while
+        // it was in flight; now that layout is back to its true size,
+        // force every ScrollTrigger (incl. the Experience SVG line) to
+        // re-measure so nothing stays pinned to stale, scaled-down values.
+        ScrollTrigger.refresh();
       }
 
       setVisible(false);

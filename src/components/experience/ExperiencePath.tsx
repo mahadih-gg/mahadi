@@ -21,10 +21,11 @@ export default function ExperiencePath({ pathRef }: ExperiencePathProps) {
       <path
         ref={pathRef}
         stroke="white"
-        strokeOpacity={0.1}
+        strokeOpacity={0.16}
         strokeWidth={5}
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
+        style={{ filter: "drop-shadow(0 0 8px rgba(255,255,255,0.25))" }}
       />
     </svg>
   );
