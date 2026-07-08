@@ -2,6 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { getProjectCategory } from "@/data/projects.data";
+import type { DetailPanelLayout } from "@/lib/gallery/layout";
 import { easePower3Out } from "@/lib/motion-easing";
 import { cn } from "@/lib/utils";
 import type { Project } from "@/types/project.type";
@@ -11,7 +12,7 @@ import { HiOutlineArrowTopRightOnSquare } from "react-icons/hi2";
 
 type ProjectDetailPanelProps = {
   project: Project | null;
-  side: "left" | "right";
+  layout: DetailPanelLayout | null;
   reduceMotion?: boolean;
 };
 
@@ -137,27 +138,30 @@ function DetailContent({
  */
 export default function ProjectDetailPanel({
   project,
-  side,
+  layout,
   reduceMotion = false,
 }: ProjectDetailPanelProps) {
+  if (!layout) return null;
+
   return (
     <div
-      className={cn(
-        "pointer-events-none absolute inset-y-0 hidden items-center md:flex",
-        side === "left" ? "left-[15%]" : "right-[15%]",
-      )}
+      className="pointer-events-none absolute inset-y-0 hidden items-center md:flex"
+      style={{
+        left: layout.style.left,
+        right: layout.style.right,
+      }}
     >
       <div
         className={cn(
           "w-full px-2 lg:px-4",
-          side === "left" && "text-right",
+          layout.textAlign === "right" && "text-right",
         )}
       >
         <AnimatePresence mode="wait">
           {project && (
             <DetailContent
               project={project}
-              align={side}
+              align={layout.side}
               reduceMotion={reduceMotion}
             />
           )}

@@ -7,7 +7,7 @@ type SpotlightGlowProps = {
 export default function SpotlightGlow({ side, visible }: SpotlightGlowProps) {
   return (
     <div
-      className="gallery-spotlight"
+      className="gallery-spotlight hidden md:block"
       style={{
         left: side === "left" ? "30%" : "70%",
         opacity: visible ? 1 : 0,

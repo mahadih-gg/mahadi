@@ -50,8 +50,14 @@ const FRAME_RATIO = 0.66;
 /** Below this viewport width, layout switches to a single stacked column
  * (see `MOBILE_SLOTS`) with a much wider frame, since a multi-column grid
  * has no room to breathe on a narrow phone screen. */
-const MOBILE_BREAKPOINT = 768;
+export const MOBILE_BREAKPOINT = 768;
 const MOBILE_FRAME_WIDTH_VW = 74;
+/** Top inset for the focused frame on mobile (below the site header). */
+const MOBILE_FOCUS_TOP_VH = 11;
+
+export function isMobileViewport(viewportWidth: number): boolean {
+  return viewportWidth < MOBILE_BREAKPOINT;
+}
 
 /**
  * Desktop: a tidy 2×2 grid — organized at a glance, but each frame sits at
@@ -65,12 +71,12 @@ const DESKTOP_SLOTS: GallerySlot[] = [
   { xVW: 27, yVH: 27, rotate: -2.8 },
 ];
 
-/** Mobile: single column, gently staggered left/right, stacked top to bottom. */
+/** Mobile: single centered column, stacked top to bottom. */
 const MOBILE_SLOTS: GallerySlot[] = [
-  { xVW: -4, yVH: -33, rotate: -3 },
-  { xVW: 4, yVH: -11, rotate: 2.6 },
-  { xVW: -4, yVH: 11, rotate: 2 },
-  { xVW: 4, yVH: 33, rotate: -2.4 },
+  { xVW: 0, yVH: -33, rotate: -3 },
+  { xVW: 0, yVH: -11, rotate: 2.6 },
+  { xVW: 0, yVH: 11, rotate: 2 },
+  { xVW: 0, yVH: 33, rotate: -2.4 },
 ];
 
 const GOLDEN_ANGLE = 137.508;
@@ -166,12 +172,75 @@ export function getFocusSide(index: number): "left" | "right" {
   return index % 2 === 0 ? "left" : "right";
 }
 
+/** Horizontal gap between the active frame edge and the detail panel. */
+const DETAIL_PANEL_GAP_VW = 4;
+/** Minimum inset from the viewport edge for the detail panel. */
+const DETAIL_PANEL_EDGE_MARGIN_VW = 5;
+
+export type DetailPanelLayout = {
+  side: "left" | "right";
+  style: {
+    left: number;
+    right: number;
+  };
+  textAlign: "left" | "right";
+};
+
+/**
+ * Positions the detail panel relative to the active project's focused frame so
+ * every project shares the same gap between image and description.
+ */
+export function getDetailPanelLayout(
+  index: number,
+  viewportWidth: number,
+  viewportHeight: number,
+): DetailPanelLayout {
+  const box = getProjectFrameBox(index, viewportWidth, viewportHeight);
+  const target = getFocusTarget(index, viewportWidth, viewportHeight);
+  const focusSide = getFocusSide(index);
+  const activeScale = 1.1;
+  const halfWidth = (box.width * activeScale) / 2;
+  const gap = (DETAIL_PANEL_GAP_VW / 100) * viewportWidth;
+  const edgeMargin = (DETAIL_PANEL_EDGE_MARGIN_VW / 100) * viewportWidth;
+
+  if (focusSide === "left") {
+    return {
+      side: "right",
+      style: {
+        left: target.x + halfWidth + gap,
+        right: edgeMargin,
+      },
+      textAlign: "left",
+    };
+  }
+
+  return {
+    side: "left",
+    style: {
+      left: edgeMargin,
+      right: viewportWidth - (target.x - halfWidth - gap),
+    },
+    textAlign: "right",
+  };
+}
+
 /** Viewport-space point the camera should center a project on when focused. */
 export function getFocusTarget(
   index: number,
   viewportWidth: number,
   viewportHeight: number,
 ): { x: number; y: number } {
+  if (isMobileViewport(viewportWidth)) {
+    const box = getProjectFrameBox(index, viewportWidth, viewportHeight);
+    const activeScale = 1.1;
+    const topInset = (MOBILE_FOCUS_TOP_VH / 100) * viewportHeight;
+
+    return {
+      x: viewportWidth * 0.5,
+      y: topInset + (box.height * activeScale) / 2,
+    };
+  }
+
   const side = getFocusSide(index);
   return {
     x: viewportWidth * (side === "left" ? 0.3 : 0.7),

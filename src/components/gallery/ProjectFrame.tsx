@@ -32,7 +32,7 @@ export default function ProjectFrame({
         top: `calc(50% + ${box.y}px)`,
         width: box.width,
         height: box.height,
-        transform: `translate(-50%, -50%) rotate(${box.rotate}deg)`,
+        transform: "translate(-50%, -50%)",
       }}
       aria-hidden={false}
     >
@@ -41,7 +41,7 @@ export default function ProjectFrame({
         className="gallery-frame relative h-full w-full rounded-2xl bg-gradient-to-br from-white/[0.07] to-white/[0.02] p-2 md:rounded-3xl md:p-3"
         style={{
           transformOrigin: "center center",
-          transform: `scale(${initial.scale})`,
+          transform: `scale(${initial.scale}) rotate(${box.rotate}deg)`,
           opacity: initial.opacity,
           filter: initial.filter,
           boxShadow: initial.boxShadow,

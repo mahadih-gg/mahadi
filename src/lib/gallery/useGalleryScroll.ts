@@ -4,7 +4,11 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { type RefObject, useLayoutEffect, useRef, useState } from "react";
 import { frameStateFor } from "./frameStates";
-import { getCameraOffsetForProject, getOverviewStageScale } from "./layout";
+import {
+  getCameraOffsetForProject,
+  getOverviewStageScale,
+  getProjectFrameBox,
+} from "./layout";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -57,8 +61,13 @@ export function useGalleryScroll({
 
     const ctx = gsap.context(() => {
       gsap.set(stage, { x: 0, y: 0, scale: overviewScale });
-      frames.forEach((frame) => {
-        if (frame) gsap.set(frame, frameStateFor("overview"));
+      frames.forEach((frame, index) => {
+        if (!frame) return;
+        const box = getProjectFrameBox(index, viewport.width, viewport.height);
+        gsap.set(frame, {
+          ...frameStateFor("overview"),
+          rotation: box.rotate,
+        });
       });
 
       const tl = gsap.timeline({ paused: true });
@@ -83,10 +92,16 @@ export function useGalleryScroll({
 
           const state =
             j === i ? "active" : Math.abs(j - i) === 1 ? "near" : "far";
+          const box = getProjectFrameBox(j, viewport.width, viewport.height);
 
           tl.to(
             frame,
-            { ...frameStateFor(state), duration: 1, ease: "power2.inOut" },
+            {
+              ...frameStateFor(state),
+              rotation: j === i ? 0 : box.rotate,
+              duration: 1,
+              ease: "power2.inOut",
+            },
             segmentStart,
           );
         }
@@ -108,11 +123,17 @@ export function useGalleryScroll({
         },
         closingSegmentStart,
       );
-      frames.forEach((frame) => {
+      frames.forEach((frame, index) => {
         if (!frame) return;
+        const box = getProjectFrameBox(index, viewport.width, viewport.height);
         tl.to(
           frame,
-          { ...frameStateFor("overview"), duration: 1, ease: "power2.inOut" },
+          {
+            ...frameStateFor("overview"),
+            rotation: box.rotate,
+            duration: 1,
+            ease: "power2.inOut",
+          },
           closingSegmentStart,
         );
       });

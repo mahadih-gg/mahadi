@@ -1,7 +1,7 @@
 "use client";
 
 import { projects } from "@/data/projects.data";
-import { getFocusSide } from "@/lib/gallery/layout";
+import { getDetailPanelLayout, getFocusSide } from "@/lib/gallery/layout";
 import { useGalleryParallax } from "@/lib/gallery/useGalleryParallax";
 import { useGalleryScroll } from "@/lib/gallery/useGalleryScroll";
 import {
@@ -90,7 +90,13 @@ export default function ProjectsGallery() {
     () => getFocusSide(activeIndex >= 0 ? activeIndex : 0),
     [activeIndex],
   );
-  const detailSide = focusSide === "left" ? "right" : "left";
+  const detailLayout = useMemo(
+    () =>
+      activeIndex >= 0 && isReady
+        ? getDetailPanelLayout(activeIndex, viewport.width, viewport.height)
+        : null,
+    [activeIndex, isReady, viewport.width, viewport.height],
+  );
 
   const registerFrameRef = useMemo(
     () => (index: number) => (el: HTMLDivElement | null) => {
@@ -125,7 +131,7 @@ export default function ProjectsGallery() {
         />
       )}
 
-      <ProjectDetailPanel project={activeProject} side={detailSide} />
+      <ProjectDetailPanel project={activeProject} layout={detailLayout} />
       <MobileProjectDetails project={activeProject} />
 
       <div className="pointer-events-none absolute inset-x-0 top-8 flex justify-center md:top-12">
@@ -133,7 +139,7 @@ export default function ProjectsGallery() {
           className="text-xs tracking-[0.3em] text-white/40 uppercase transition-opacity duration-500"
           style={{ opacity: activeIndex < 0 ? 1 : 0 }}
         >
-          Scroll to enter the gallery
+          Projects
         </span>
       </div>
     </section>
