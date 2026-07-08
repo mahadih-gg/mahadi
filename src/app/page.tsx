@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import Experience from "@/components/experience/Experience";
 import ExperiencePageLine from "@/components/experience/ExperiencePageLine";
 import ProjectsGallery from "@/components/gallery/ProjectsGallery";
+import SkillsSection from "@/components/skills/SkillsSection";
 
 export default function Home() {
   return (
@@ -19,6 +20,7 @@ export default function Home() {
         <AboutMe />
         <Experience />
         <ProjectsGallery />
+        <SkillsSection />
       </div>
     </main>
   );
