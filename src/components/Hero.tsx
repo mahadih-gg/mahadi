@@ -8,47 +8,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { usePreloader } from "@/context/preloader-context";
+import { CONTACT_LINKS } from "@/data/contact.data";
 import {
   easePower2InOut,
   easePower3Out,
 } from "@/lib/motion-easing";
 import { motion, useReducedMotion } from "motion/react";
 import Image from "next/image";
-import { FaGithub, FaLinkedin } from "react-icons/fa6";
-import { HiOutlineEnvelope, HiOutlinePhone } from "react-icons/hi2";
-import { IconType } from "react-icons/lib";
-
-type ContactLink = {
-  label: string;
-  href: string;
-  icon: IconType;
-  external?: boolean;
-};
-
-const HERO_CONTACT_LINKS: ContactLink[] = [
-  {
-    label: "mahadih.dev@gmail.com",
-    href: "mailto:mahadih.dev@gmail.com",
-    icon: HiOutlineEnvelope,
-  },
-  {
-    label: "+8801856878150",
-    href: "tel:+8801856878150",
-    icon: HiOutlinePhone,
-  },
-  {
-    label: "github.com/mahadih-gg",
-    href: "https://github.com/mahadih-gg",
-    icon: FaGithub,
-    external: true,
-  },
-  {
-    label: "linkedin.com/in/mahadih2",
-    href: "https://linkedin.com/in/mahadih2",
-    icon: FaLinkedin,
-    external: true,
-  },
-];
 
 export default function Hero() {
   const { isComplete } = usePreloader();
@@ -177,7 +143,7 @@ export default function Hero() {
         >
           <TooltipProvider delayDuration={200}>
             <ul className="flex items-center justify-center gap-4 md:justify-start">
-              {HERO_CONTACT_LINKS.map((link) => {
+              {CONTACT_LINKS.map((link) => {
                 const Icon = link.icon;
 
                 return (

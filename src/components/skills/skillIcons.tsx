@@ -1,8 +1,12 @@
 import type { IconType } from "react-icons";
 import {
+  SiAnimedotjs,
   SiAntdesign,
   SiAxios,
+  SiBootstrap,
+  SiClaudecode,
   SiClickup,
+  SiCursor,
   SiDocker,
   SiFigma,
   SiFramer,
@@ -11,20 +15,25 @@ import {
   SiGitlab,
   SiGraphql,
   SiGreensock,
+  SiHermes,
   SiJavascript,
   SiJira,
   SiMongodb,
+  SiMui,
+  SiN8N,
   SiNextdotjs,
   SiReact,
   SiReactquery,
+  SiRedux,
   SiSass,
   SiShadcnui,
   SiTailwindcss,
   SiThreedotjs,
   SiTrello,
-  SiTypescript,
+  SiTypescript
 } from "react-icons/si";
 import { TbBrandReactNative } from "react-icons/tb";
+import SvgIcon from "../svg/openclaw.icon";
 
 /** Maps skills.data.ts `icon` keys to their brand mark. Skills without an
  * entry here render a text monogram instead. */
@@ -37,8 +46,12 @@ export const skillIconMap: Record<string, IconType> = {
   motion: SiFramer,
   threejs: SiThreedotjs,
   gsap: SiGreensock,
+  animejs: SiAnimedotjs,
+  redux: SiRedux,
   shadcn: SiShadcnui,
   tailwind: SiTailwindcss,
+  bootstrap: SiBootstrap,
+  mui: SiMui,
   antdesign: SiAntdesign,
   sass: SiSass,
   axios: SiAxios,
@@ -53,4 +66,9 @@ export const skillIconMap: Record<string, IconType> = {
   clickup: SiClickup,
   trello: SiTrello,
   jira: SiJira,
+  claude: SiClaudecode,
+  n8n: SiN8N,
+  hermes: SiHermes,
+  openclaw: SvgIcon,
+  cursor: SiCursor,
 };

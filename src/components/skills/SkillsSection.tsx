@@ -22,8 +22,8 @@ const listMask: CSSProperties = {
 };
 
 /**
- * Tech stack, grouped the same way as the resume: languages, then
- * frameworks/libraries, then tools/platforms. No cards, no wrapping pill
+ * Tech stack grouped by category (languages, frameworks, animation,
+ * state, styling, data, automation, tools). No cards, no wrapping pill
  * grid — just a plain list stacked bottom by bottom. The section pins in
  * place (same ScrollTrigger recipe as ProjectsGallery) while scrolling
  * drives the list past a fixed reading line, sweeping each row's border
@@ -116,13 +116,13 @@ export default function SkillsSection() {
     <section
       ref={sectionRef}
       id="skills"
-      aria-label="Tech stack and skills"
+      aria-label="Technical Expertise and skills"
       className="relative h-screen w-full overflow-hidden"
     >
       <div className="mx-auto flex h-full w-full max-w-6xl flex-col justify-center gap-8 px-6 md:grid md:grid-cols-[minmax(0,300px)_1fr] md:items-center md:gap-16 md:px-10">
         <div>
           <h2 className="font-secondary text-4xl font-bold tracking-tight text-foreground md:text-6xl">
-            Tech Stack
+            Technical Expertise
           </h2>
           <p className="mt-4 block max-w-xs text-base leading-relaxed text-muted-foreground md:text-lg">
             Languages, frameworks, and tools I reach for to design, build,

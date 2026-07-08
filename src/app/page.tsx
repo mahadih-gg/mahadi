@@ -3,6 +3,7 @@ import Hero from "@/components/Hero";
 import Experience from "@/components/experience/Experience";
 import ExperiencePageLine from "@/components/experience/ExperiencePageLine";
 import ProjectsGallery from "@/components/gallery/ProjectsGallery";
+import ContactSection from "@/components/sections/ContactSection";
 import SkillsSection from "@/components/skills/SkillsSection";
 
 export default function Home() {
@@ -21,6 +22,7 @@ export default function Home() {
         <Experience />
         <ProjectsGallery />
         <SkillsSection />
+        <ContactSection />
       </div>
     </main>
   );

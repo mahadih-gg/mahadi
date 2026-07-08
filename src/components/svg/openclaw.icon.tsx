@@ -1,0 +1,31 @@
+
+const SvgIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" className="size-4 shrink-0 md:size-5" viewBox="0 0 120 120">
+    <defs>
+      <linearGradient id="lobster-gradient" x1="0%" x2="100%" y1="0%" y2="100%">
+        <stop offset="0%" stopColor="#ff4d4d"></stop>
+        <stop offset="100%" stopColor="#991b1b"></stop>
+      </linearGradient>
+    </defs>
+    <path
+      fill="url(#lobster-gradient)"
+      d="M60 10c-30 0-45 25-45 45s15 40 30 45v10h10v-10s5 2 10 0v10h10v-10c15-5 30-25 30-45S90 10 60 10"
+    ></path>
+    <path
+      fill="url(#lobster-gradient)"
+      d="M20 45C5 40 0 50 5 60s15 5 20-5c3-7 0-10-5-10M100 45c15-5 20 5 15 15s-15 5-20-5c-3-7 0-10 5-10"
+    ></path>
+    <path
+      stroke="#ff4d4d"
+      strokeLinecap="round"
+      strokeWidth="3"
+      d="M45 15Q35 5 30 8M75 15Q85 5 90 8"
+    ></path>
+    <circle cx="45" cy="35" r="6" fill="#050810"></circle>
+    <circle cx="75" cy="35" r="6" fill="#050810"></circle>
+    <circle cx="46" cy="34" r="2.5" fill="#00e5cc"></circle>
+    <circle cx="76" cy="34" r="2.5" fill="#00e5cc"></circle>
+  </svg>
+);
+
+export default SvgIcon;
