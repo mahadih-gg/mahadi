@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "../styles/gallery.css";
+@import "../styles/contact-tiles.css";
 @source "../lib/underwater-nav/runtime.js";
 
 @theme inline {

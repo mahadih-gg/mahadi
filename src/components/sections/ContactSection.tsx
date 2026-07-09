@@ -1,5 +1,6 @@
 "use client";
 
+import { ContactTilesBackground } from "@/components/contact/ContactTilesBackground";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -15,8 +16,8 @@ import {
 import { useContactForm } from "@/hooks/useContactForm";
 import { easePower3Out } from "@/lib/motion-easing";
 import { cn } from "@/lib/utils";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Send } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState, type FormEvent } from "react";
 
 const containerVariants = {
@@ -212,6 +213,8 @@ export default function ContactSection() {
           >
             <div className="grid grid-cols-1 lg:grid-cols-2">
               <div className="relative flex min-h-[320px] flex-col justify-between overflow-hidden p-8 md:p-10 lg:p-12">
+                <ContactTilesBackground />
+
                 <div
                   aria-hidden
                   className="pointer-events-none absolute inset-0"
@@ -227,7 +230,7 @@ export default function ContactSection() {
                   </p>
                   <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground md:text-base">
                     Prefer a direct line? Reach out through email, phone, or
-                    social — I&apos;m always open to interesting conversations.
+                    social - I&apos;m always open to interesting conversations.
                   </p>
                 </div>
 
@@ -236,7 +239,7 @@ export default function ContactSection() {
                 </div>
               </div>
 
-              <div className="border-t border-white/10 p-8 md:p-10 lg:border-t-0 lg:border-l lg:p-12">
+              <div className="p-8 md:p-10 lg:p-12">
                 <h3 className="mb-8 text-sm font-semibold tracking-wide text-foreground uppercase">
                   Send a message
                 </h3>
