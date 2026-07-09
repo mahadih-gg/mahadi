@@ -1,4 +1,5 @@
 import ExperienceItem from "@/components/experience/ExperienceItem";
+import { AnimatedSectionHeader } from "@/components/typography/AnimatedSectionHeader";
 import { experienceData } from "@/data/experienceData";
 
 /**
@@ -14,9 +15,9 @@ export default function Experience() {
       className="relative overflow-hidden py-24 md:py-32"
     >
       <div className="mx-auto w-full max-w-6xl px-6 md:px-10">
-        <h2 className="font-secondary text-4xl font-bold tracking-tight text-foreground md:text-6xl">
+        <AnimatedSectionHeader className="w-full font-secondary text-4xl font-bold tracking-tight text-foreground md:text-6xl">
           Experience
-        </h2>
+        </AnimatedSectionHeader>
         <p className="mt-4 max-w-md text-base text-muted-foreground md:text-lg">
           A thread through every team I have built with.
         </p>

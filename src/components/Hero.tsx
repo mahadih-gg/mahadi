@@ -1,6 +1,7 @@
 "use client";
 
 import { RealisticFogBackground } from "@/components/realistic-fog-background";
+import { AnimatedHeroName } from "@/components/typography/AnimatedHeroName";
 import {
   Tooltip,
   TooltipContent,
@@ -67,45 +68,12 @@ export default function Hero() {
       </motion.div>
 
       <div className="absolute inset-x-6 bottom-8 z-15 flex flex-col items-center gap-4 text-center md:inset-x-12 md:bottom-12 md:grid md:grid-cols-2 md:items-end md:gap-x-8 md:gap-y-5 md:text-left">
-        <div className="flex flex-wrap items-baseline justify-center gap-x-[1em] md:contents">
-          <motion.h1
-            initial={{ opacity: 0, x: -36, y: 24 }}
-            animate={
-              visible
-                ? { opacity: 1, x: 0, y: 0 }
-                : { opacity: 0, x: -36, y: 24 }
-            }
-            transition={
-              instant ?? {
-                duration: 1.4,
-                delay: 1.1,
-                ease: easePower3Out,
-              }
-            }
-            className="font-secondary text-[clamp(4.5rem,8vw,9rem)] leading-[0.95] font-bold tracking-tight text-foreground"
-          >
-            Mahadi
-          </motion.h1>
-
-          <motion.h2
-            initial={{ opacity: 0, x: 36, y: 24 }}
-            animate={
-              visible
-                ? { opacity: 1, x: 0, y: 0 }
-                : { opacity: 0, x: 36, y: 24 }
-            }
-            transition={
-              instant ?? {
-                duration: 1.4,
-                delay: 1.1,
-                ease: easePower3Out,
-              }
-            }
-            className="font-secondary text-[clamp(4.5rem,8vw,9rem)] leading-[0.95] font-bold tracking-tight text-foreground md:text-right"
-          >
-            Hasan
-          </motion.h2>
-        </div>
+        <AnimatedHeroName
+          primary="Mahadi"
+          secondary="Hasan"
+          ready={Boolean(visible)}
+          delay={1.1}
+        />
 
         <motion.p
           initial={{ opacity: 0, y: 20 }}

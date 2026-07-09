@@ -1,6 +1,7 @@
 "use client";
 
 import { skillCategories } from "@/data/skills.data";
+import { AnimatedSectionHeader } from "@/components/typography/AnimatedSectionHeader";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import type { CSSProperties } from "react";
@@ -121,9 +122,9 @@ export default function SkillsSection() {
     >
       <div className="mx-auto flex h-full w-full max-w-6xl flex-col justify-center gap-8 px-6 md:grid md:grid-cols-[minmax(0,300px)_1fr] md:items-center md:gap-16 md:px-10">
         <div>
-          <h2 className="font-secondary text-4xl font-bold tracking-tight text-foreground md:text-6xl">
+          <AnimatedSectionHeader className="w-full font-secondary text-4xl font-bold tracking-tight text-foreground md:text-6xl">
             Technical Expertise
-          </h2>
+          </AnimatedSectionHeader>
           <p className="mt-4 block max-w-xs text-base leading-relaxed text-muted-foreground md:text-lg">
             Languages, frameworks, and tools I reach for to design, build,
             and ship polished front-end products.

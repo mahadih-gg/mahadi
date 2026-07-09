@@ -1,5 +1,5 @@
 import AppProviders from "@/components/app-providers";
-import LenisProvider from "@/components/lenis-provider";
+import { LenisProvider } from "@/components/providers/LenisProvider";
 import Navbar from "@/components/Navbar";
 import type { Metadata } from "next";
 import { Space_Grotesk, Syne, Unbounded } from "next/font/google";

@@ -1,7 +1,14 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+@import "splitting/dist/splitting.css";
+@import "splitting/dist/splitting-cells.css";
 @import "../styles/gallery.css";
 @import "../styles/contact-tiles.css";
+
+.splitting .word {
+  white-space: nowrap;
+  display: inline-block;
+}
 @source "../lib/underwater-nav/runtime.js";
 
 @theme inline {
@@ -49,11 +56,11 @@
 }
 
 :root {
-  --palette-bg-main: #0d1117;
+  --palette-bg-main: #0e0e0e;
   --palette-bg-surface: #161b22;
   --palette-card-border: #21262d;
-  --palette-accent: #58a6ff;
-  --palette-text: #c9d1d9;
+  --palette-accent: #d68521;
+  --palette-text: #ddc4a4;
 
   --radius: 0.625rem;
   --background: var(--palette-bg-main);
@@ -98,6 +105,23 @@
     @apply bg-background text-foreground overflow-x-hidden;
   }
 
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-secondary;
+  }
+
+  h1 *,
+  h2 *,
+  h3 *,
+  h4 *,
+  h5 *,
+  h6 * {
+    font-family: inherit;
+  }
 }
 
 .interactive-cursor-canvas {

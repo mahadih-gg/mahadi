@@ -1,6 +1,8 @@
 "use client";
 
 import { ContactTilesBackground } from "@/components/contact/ContactTilesBackground";
+import { AnimatedSectionHeader } from "@/components/typography/AnimatedSectionHeader";
+import { AnimatedHeading } from "@/components/typography/AnimatedHeading";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -192,12 +194,14 @@ export default function ContactSection() {
             Get In Touch
           </motion.p>
 
-          <motion.h2
+          <motion.div
             variants={reduceMotion ? undefined : itemVariants}
-            className="mt-3 font-secondary text-4xl font-bold tracking-tight text-foreground md:text-6xl"
+            className="mt-3"
           >
-            Let&apos;s build something great
-          </motion.h2>
+            <AnimatedSectionHeader className="w-full font-secondary text-4xl font-bold tracking-tight text-foreground md:text-6xl">
+              Let&apos;s build something great
+            </AnimatedSectionHeader>
+          </motion.div>
 
           <motion.p
             variants={reduceMotion ? undefined : itemVariants}
@@ -240,9 +244,12 @@ export default function ContactSection() {
               </div>
 
               <div className="p-8 md:p-10 lg:p-12">
-                <h3 className="mb-8 text-sm font-semibold tracking-wide text-foreground uppercase">
+                <AnimatedHeading
+                  as="h3"
+                  className="mb-8 text-sm font-semibold tracking-wide text-foreground uppercase"
+                >
                   Send a message
-                </h3>
+                </AnimatedHeading>
 
                 <div className="relative">
                   <form

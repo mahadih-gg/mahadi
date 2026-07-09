@@ -1,3 +1,4 @@
+import { AnimatedHeading } from "@/components/typography/AnimatedHeading";
 import { getAllProjectSlugs, getProjectBySlug } from "@/data/projects.data";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -47,13 +48,16 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         </Link>
 
         <header className="mt-8">
-          <h1 className="font-display text-4xl font-semibold leading-tight text-foreground md:text-6xl">
+          <AnimatedHeading
+            as="h1"
+            className="font-secondary text-4xl font-semibold leading-tight text-foreground md:text-6xl"
+          >
             {project.titleLines.map((line) => (
               <span key={line} className="block">
                 {line}
               </span>
             ))}
-          </h1>
+          </AnimatedHeading>
           <p className="mt-4 max-w-2xl text-lg text-muted-foreground">
             {project.description}
           </p>
@@ -98,9 +102,12 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
         {project.sections.map((section) => (
           <section key={section.title} className="mt-16">
-            <h2 className="font-secondary text-2xl text-foreground md:text-3xl">
+            <AnimatedHeading
+              as="h2"
+              className="font-secondary text-2xl text-foreground md:text-3xl"
+            >
               {section.title}
-            </h2>
+            </AnimatedHeading>
 
             <div className="mt-6 space-y-4">
               {section.paragraphs.map((paragraph) => (
@@ -120,9 +127,12 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                     key={feature.title}
                     className="rounded-xl border border-border bg-secondary p-5"
                   >
-                    <h3 className="font-medium text-foreground">
+                    <AnimatedHeading
+                      as="h3"
+                      className="font-medium text-foreground"
+                    >
                       {feature.title}
-                    </h3>
+                    </AnimatedHeading>
                     <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                       {feature.description}
                     </p>

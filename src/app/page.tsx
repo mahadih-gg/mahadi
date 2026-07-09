@@ -5,6 +5,7 @@ import ExperiencePageLine from "@/components/experience/ExperiencePageLine";
 import ProjectsGallery from "@/components/gallery/ProjectsGallery";
 import ContactSection from "@/components/sections/ContactSection";
 import SkillsSection from "@/components/skills/SkillsSection";
+import { AnimatedFooterText } from "@/components/typography/AnimatedFooterText";
 
 export default function Home() {
   return (
@@ -23,6 +24,12 @@ export default function Home() {
         <ProjectsGallery />
         <SkillsSection />
         <ContactSection />
+        <AnimatedFooterText>
+          {`Act because you have hands,
+that bring to life your every command.
+With them you can create and build,
+and bring to life what once was stilled.`}
+        </AnimatedFooterText>
       </div>
     </main>
   );

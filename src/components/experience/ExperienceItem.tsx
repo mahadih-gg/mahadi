@@ -1,3 +1,4 @@
+import { AnimatedHeading } from "@/components/typography/AnimatedHeading";
 import type { ExperienceEntry } from "@/data/experienceData";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
@@ -68,9 +69,12 @@ export default function ExperienceItem({ item, index }: ExperienceItemProps) {
             />
           </div>
           <div>
-            <h3 className="font-secondary text-lg font-semibold tracking-tight text-white md:text-2xl">
+            <AnimatedHeading
+              as="h3"
+              className="font-secondary text-lg font-semibold tracking-tight md:text-2xl"
+            >
               {item.company}
-            </h3>
+            </AnimatedHeading>
             <p className="text-sm font-medium text-primary md:text-base">
               {item.role}
             </p>

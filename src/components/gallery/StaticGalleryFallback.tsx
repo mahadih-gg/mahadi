@@ -1,3 +1,4 @@
+import { AnimatedHeading } from "@/components/typography/AnimatedHeading";
 import { Button } from "@/components/ui/button";
 import { getProjectCategory } from "@/data/projects.data";
 import { getFocusSide } from "@/lib/gallery/layout";
@@ -60,9 +61,12 @@ export default function StaticGalleryFallback({
                   {getProjectCategory(project)}
                 </span>
 
-                <h3 className="mt-5 font-secondary text-3xl font-bold tracking-tight text-white md:text-4xl">
+                <AnimatedHeading
+                  as="h3"
+                  className="mt-5 font-secondary text-3xl font-bold tracking-tight text-white md:text-4xl"
+                >
                   {project.title}
-                </h3>
+                </AnimatedHeading>
 
                 <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
                   {project.description}

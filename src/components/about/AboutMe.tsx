@@ -1,3 +1,4 @@
+import { AnimatedSectionHeader } from "@/components/typography/AnimatedSectionHeader";
 import { aboutBio, aboutHighlights } from "@/data/about.data";
 
 export default function AboutMe() {
@@ -16,9 +17,9 @@ export default function AboutMe() {
           data-line-start
           className="pointer-events-none absolute top-0 right-[12%] size-px md:right-[20%]"
         />
-        <h2 className="font-secondary text-4xl font-bold tracking-tight text-foreground md:text-6xl">
+        <AnimatedSectionHeader className="w-full font-secondary text-4xl font-bold tracking-tight text-foreground md:text-6xl">
           About Me
-        </h2>
+        </AnimatedSectionHeader>
         <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
           {aboutBio}
         </p>
