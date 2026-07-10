@@ -1,10 +1,19 @@
 "use client";
 
 import { projects } from "@/data/projects.data";
-import { getDetailPanelLayout, getFocusSide } from "@/lib/gallery/layout";
+import {
+  getDetailPanelLayout,
+  getFocusSide,
+  getMobileHeadingTopInsetVh,
+  isMobileViewport,
+} from "@/lib/gallery/layout";
 import { useGalleryParallax } from "@/lib/gallery/useGalleryParallax";
 import { useGalleryScroll } from "@/lib/gallery/useGalleryScroll";
+import { useLenis } from "lenis/react";
+import { LayoutGroup } from "motion/react";
 import {
+  useCallback,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -12,6 +21,7 @@ import {
 } from "react";
 import GalleryStage from "./GalleryStage";
 import ProjectDetailPanel, { MobileProjectDetails } from "./ProjectDetailPanel";
+import ProjectDetailsOverlay from "./ProjectDetailsOverlay";
 import SpotlightGlow from "./SpotlightGlow";
 import StaticGalleryFallback from "./StaticGalleryFallback";
 
@@ -70,6 +80,25 @@ export default function ProjectsGallery() {
   const viewport = useViewportSize();
   const reducedMotion = useReducedMotionPreference();
   const isReady = viewport.width > 0 && viewport.height > 0;
+  const lenis = useLenis();
+  const [pinnedIndex, setPinnedIndex] = useState<number | null>(null);
+
+  const handleCloseDetails = useCallback(() => {
+    setPinnedIndex(null);
+  }, []);
+
+  useEffect(() => {
+    if (pinnedIndex === null) {
+      lenis?.start();
+      return;
+    }
+
+    lenis?.stop();
+
+    return () => {
+      lenis?.start();
+    };
+  }, [pinnedIndex, lenis]);
 
   const { activeIndex } = useGalleryScroll({
     sectionRef,
@@ -87,7 +116,12 @@ export default function ProjectsGallery() {
     enabled: !reducedMotion,
   });
 
-  const activeProject = activeIndex >= 0 ? projects[activeIndex] : null;
+  const handleOpenDetails = useCallback(() => {
+    if (activeIndex >= 0) setPinnedIndex(activeIndex);
+  }, [activeIndex]);
+
+  const activeProject =
+    activeIndex >= 0 && pinnedIndex === null ? projects[activeIndex] : null;
   const focusSide = useMemo(
     () => getFocusSide(activeIndex >= 0 ? activeIndex : 0),
     [activeIndex],
@@ -107,47 +141,73 @@ export default function ProjectsGallery() {
     [],
   );
 
+  const headingTopInset = isReady && isMobileViewport(viewport.width)
+    ? getMobileHeadingTopInsetVh()
+    : 0;
+
   if (reducedMotion) {
     return <StaticGalleryFallback projects={projects} />;
   }
 
   return (
-    <section
-      ref={sectionRef}
-      id="projects"
-      aria-label="Projects gallery"
-      className="gallery-section relative h-screen w-full overflow-hidden isolate"
-    >
-      <div className="gallery-vignette" />
-      <div className="gallery-grain" />
-
-      <SpotlightGlow side="left" visible={activeIndex >= 0 && focusSide === "left"} />
-      <SpotlightGlow side="right" visible={activeIndex >= 0 && focusSide === "right"} />
-
-      <div
-        ref={headingRef}
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 z-0 flex flex-col items-center justify-center gap-3"
+    <LayoutGroup id="projects-gallery">
+      <section
+        ref={sectionRef}
+        id="projects"
+        aria-label="Projects gallery"
+        className="gallery-section relative h-screen w-full overflow-hidden isolate"
       >
-        <span className="text-xs tracking-[0.3em] text-primary uppercase">
-          Selected Work
-        </span>
-        <h2 className="font-secondary text-[clamp(2.75rem,7vw,6rem)] font-bold uppercase tracking-tight text-foreground">
-          Projects
-        </h2>
-      </div>
+        <div className="gallery-vignette" />
+        <div className="gallery-grain" />
 
-      {isReady && (
-        <GalleryStage
-          projects={projects}
-          viewport={viewport}
-          stageRef={stageRef}
-          registerFrameRef={registerFrameRef}
+        <SpotlightGlow side="left" visible={activeIndex >= 0 && focusSide === "left"} />
+        <SpotlightGlow side="right" visible={activeIndex >= 0 && focusSide === "right"} />
+
+        <div
+          ref={headingRef}
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-col items-center gap-2 md:inset-0 md:z-0 md:justify-center md:gap-3"
+          style={
+            headingTopInset > 0
+              ? { paddingTop: `${headingTopInset}vh` }
+              : undefined
+          }
+        >
+          <span className="text-xs tracking-[0.3em] text-primary uppercase">
+            Selected Work
+          </span>
+          <h2 className="font-secondary text-[clamp(2.25rem,11vw,6rem)] font-bold uppercase tracking-tight text-foreground md:text-[clamp(2.75rem,7vw,6rem)]">
+            Projects
+          </h2>
+        </div>
+
+        {isReady && (
+          <GalleryStage
+            projects={projects}
+            viewport={viewport}
+            stageRef={stageRef}
+            registerFrameRef={registerFrameRef}
+            pinnedIndex={pinnedIndex}
+            reduceMotion={reducedMotion}
+          />
+        )}
+
+        <ProjectDetailPanel
+          project={activeProject}
+          layout={detailLayout}
+          onOpenDetails={handleOpenDetails}
         />
-      )}
+        <MobileProjectDetails
+          project={activeProject}
+          onOpenDetails={handleOpenDetails}
+        />
+      </section>
 
-      <ProjectDetailPanel project={activeProject} layout={detailLayout} />
-      <MobileProjectDetails project={activeProject} />
-    </section>
+      <ProjectDetailsOverlay
+        project={pinnedIndex !== null ? projects[pinnedIndex] : null}
+        onClose={handleCloseDetails}
+        reduceMotion={reducedMotion}
+      />
+    </LayoutGroup>
   );
 }

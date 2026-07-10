@@ -1,6 +1,15 @@
+"use client";
+
+import {
+  galleryCardChromeClassName,
+  galleryCardLayoutId,
+} from "@/lib/gallery/cardChrome";
 import { frameStateFor } from "@/lib/gallery/frameStates";
 import type { ProjectFrameBox } from "@/lib/gallery/layout";
+import { easePower3Out } from "@/lib/motion-easing";
+import { cn } from "@/lib/utils";
 import type { Project } from "@/types/project.type";
+import { motion } from "motion/react";
 import Image from "next/image";
 
 type ProjectFrameProps = {
@@ -8,21 +17,25 @@ type ProjectFrameProps = {
   index: number;
   box: ProjectFrameBox;
   registerRef: (el: HTMLDivElement | null) => void;
+  isPinned: boolean;
+  reduceMotion?: boolean;
 };
 
 /**
  * A single framed artwork. Position is permanent (set once from `box`);
  * only the inner animated element's scale/opacity/filter/shadow are ever
  * touched, and only by the gallery scroll timeline / parallax hooks.
- * Image-only — no title, description, or buttons live here.
  */
 export default function ProjectFrame({
   project,
   index,
   box,
   registerRef,
+  isPinned,
+  reduceMotion = false,
 }: ProjectFrameProps) {
   const initial = frameStateFor("overview");
+  const layoutId = reduceMotion ? undefined : galleryCardLayoutId(project.slug);
 
   return (
     <div
@@ -38,7 +51,7 @@ export default function ProjectFrame({
     >
       <div
         ref={registerRef}
-        className="gallery-frame relative h-full w-full rounded-2xl bg-gradient-to-br from-white/[0.07] to-white/[0.02] p-2 md:rounded-3xl md:p-3"
+        className="relative h-full w-full rounded-2xl md:rounded-3xl"
         style={{
           transformOrigin: "center center",
           transform: `scale(${initial.scale}) rotate(${box.rotate}deg)`,
@@ -48,17 +61,32 @@ export default function ProjectFrame({
           willChange: "transform, opacity, filter",
         }}
       >
-        <div className="relative h-full w-full overflow-hidden rounded-xl bg-black/40 md:rounded-2xl">
-          <Image
-            src={project.heroImage}
-            alt={project.title}
-            fill
-            sizes="(max-width: 768px) 75vw, 38vw"
-            className="scale-110 object-cover"
-            priority={index < 2}
+        {!isPinned ? (
+          <motion.div
+            layoutId={layoutId}
+            transition={{ layout: { duration: 0.55, ease: easePower3Out } }}
+            className={cn(galleryCardChromeClassName, "absolute inset-0 h-full")}
+          >
+            <div className="relative h-full w-full overflow-hidden rounded-xl bg-black/40 md:rounded-2xl">
+              <Image
+                src={project.heroImage}
+                alt={project.title}
+                fill
+                sizes="(max-width: 768px) 75vw, 38vw"
+                className="scale-110 object-cover"
+                priority={index < 2}
+              />
+            </div>
+          </motion.div>
+        ) : (
+          <div
+            className={cn(
+              galleryCardChromeClassName,
+              "absolute inset-0 h-full opacity-0",
+            )}
+            aria-hidden="true"
           />
-          <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/10" />
-        </div>
+        )}
       </div>
     </div>
   );

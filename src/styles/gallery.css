@@ -46,6 +46,10 @@
   transform-style: preserve-3d;
 }
 
+.gallery-details-scroll {
+  -webkit-overflow-scrolling: touch;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .gallery-spotlight {
     transition: none;

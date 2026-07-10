@@ -59,6 +59,11 @@ export function isMobileViewport(viewportWidth: number): boolean {
   return viewportWidth < MOBILE_BREAKPOINT;
 }
 
+/** Top padding for the pinned gallery heading on mobile (matches header inset). */
+export function getMobileHeadingTopInsetVh(): number {
+  return MOBILE_FOCUS_TOP_VH;
+}
+
 /**
  * Desktop: a tidy 2×2 grid — organized at a glance, but each frame sits at
  * its own small angle so it still reads as a curated gallery wall rather
@@ -71,12 +76,12 @@ const DESKTOP_SLOTS: GallerySlot[] = [
   { xVW: 27, yVH: 27, rotate: -2.8 },
 ];
 
-/** Mobile: single centered column, stacked top to bottom. */
+/** Mobile: single centered column, stacked below the section heading. */
 const MOBILE_SLOTS: GallerySlot[] = [
-  { xVW: 0, yVH: -33, rotate: -3 },
-  { xVW: 0, yVH: -11, rotate: 2.6 },
-  { xVW: 0, yVH: 11, rotate: 2 },
-  { xVW: 0, yVH: 33, rotate: -2.4 },
+  { xVW: 0, yVH: -14, rotate: -3 },
+  { xVW: 0, yVH: 8, rotate: 2.6 },
+  { xVW: 0, yVH: 30, rotate: 2 },
+  { xVW: 0, yVH: 52, rotate: -2.4 },
 ];
 
 const GOLDEN_ANGLE = 137.508;

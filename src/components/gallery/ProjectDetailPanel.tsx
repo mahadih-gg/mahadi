@@ -13,6 +13,7 @@ import { HiOutlineArrowTopRightOnSquare } from "react-icons/hi2";
 type ProjectDetailPanelProps = {
   project: Project | null;
   layout: DetailPanelLayout | null;
+  onOpenDetails?: () => void;
   reduceMotion?: boolean;
 };
 
@@ -45,10 +46,12 @@ function DetailContent({
   project,
   align,
   reduceMotion,
+  onOpenDetails,
 }: {
   project: Project;
   align: "left" | "right" | "center";
   reduceMotion: boolean;
+  onOpenDetails?: () => void;
 }) {
   const v = reduceMotion ? undefined : "visible";
   const h = reduceMotion ? undefined : "hidden";
@@ -117,6 +120,12 @@ function DetailContent({
           </a>
         </Button>
 
+        {onOpenDetails && (
+          <Button type="button" variant="outline" onClick={onOpenDetails}>
+            Details
+          </Button>
+        )}
+
         {project.githubUrl && (
           <Button asChild variant="outline">
             <a href={project.githubUrl} target="_blank" rel="noopener noreferrer">
@@ -139,6 +148,7 @@ function DetailContent({
 export default function ProjectDetailPanel({
   project,
   layout,
+  onOpenDetails,
   reduceMotion = false,
 }: ProjectDetailPanelProps) {
   if (!layout) return null;
@@ -164,6 +174,7 @@ export default function ProjectDetailPanel({
               project={project}
               align={layout.side}
               reduceMotion={reduceMotion}
+              onOpenDetails={onOpenDetails}
             />
           )}
         </AnimatePresence>
@@ -174,12 +185,14 @@ export default function ProjectDetailPanel({
 
 type MobileProjectDetailsProps = {
   project: Project | null;
+  onOpenDetails?: () => void;
   reduceMotion?: boolean;
 };
 
 /** Small-screen fallback: details stack below the focused frame, centered. */
 export function MobileProjectDetails({
   project,
+  onOpenDetails,
   reduceMotion = false,
 }: MobileProjectDetailsProps) {
   return (
@@ -191,6 +204,7 @@ export function MobileProjectDetails({
               project={project}
               align="center"
               reduceMotion={reduceMotion}
+              onOpenDetails={onOpenDetails}
             />
           )}
         </AnimatePresence>

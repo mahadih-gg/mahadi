@@ -10,6 +10,8 @@ type GalleryStageProps = {
   viewport: Viewport;
   stageRef: RefObject<HTMLDivElement | null>;
   registerFrameRef: (index: number) => (el: HTMLDivElement | null) => void;
+  pinnedIndex: number | null;
+  reduceMotion?: boolean;
 };
 
 /**
@@ -22,6 +24,8 @@ export default function GalleryStage({
   viewport,
   stageRef,
   registerFrameRef,
+  pinnedIndex,
+  reduceMotion = false,
 }: GalleryStageProps) {
   return (
     <div
@@ -36,6 +40,8 @@ export default function GalleryStage({
           index={index}
           box={getProjectFrameBox(index, viewport.width, viewport.height)}
           registerRef={registerFrameRef(index)}
+          isPinned={index === pinnedIndex}
+          reduceMotion={reduceMotion}
         />
       ))}
     </div>
