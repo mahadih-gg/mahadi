@@ -1,6 +1,7 @@
 import AppProviders from "@/components/app-providers";
 import Navbar from "@/components/Navbar";
 import { LenisProvider } from "@/components/providers/LenisProvider";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import type { Metadata } from "next";
 import { Space_Grotesk, Syne, Unbounded } from "next/font/google";
 import "./globals.css";
@@ -48,6 +49,9 @@ export default function RootLayout({
           </AppProviders>
         </LenisProvider>
       </body>
+
+      <GoogleAnalytics gaId="G-N9DFQG1HQJ" />
+
     </html>
   );
 }
