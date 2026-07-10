@@ -61,7 +61,7 @@ export default function Footer() {
             className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(214,133,33,0.08)_0%,transparent_55%)]"
           />
 
-          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col-reverse gap-6 sm:flex-row items-center justify-center sm:items-center sm:justify-between">
             <motion.p
               variants={reduceMotion ? undefined : itemVariants}
               className="text-xs tracking-wide text-foreground/80 md:text-sm"

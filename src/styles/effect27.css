@@ -10,8 +10,11 @@
   position: relative;
   min-height: 100vh;
   padding: 1.5rem 1.5rem 6rem;
-  /* Do not clip Z-depth fly-in */
-  overflow: visible;
+  /* Allow Z-depth fly-in to bleed vertically, but never widen the page:
+     words fly in with large xPercent offsets and can otherwise push
+     document scrollWidth past the viewport on mobile. */
+  overflow-x: hidden;
+  overflow-y: visible;
 }
 
 .content--effect27 .content__title {
