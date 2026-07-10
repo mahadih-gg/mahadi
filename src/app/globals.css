@@ -4,11 +4,13 @@
 @import "splitting/dist/splitting-cells.css";
 @import "../styles/gallery.css";
 @import "../styles/contact-tiles.css";
+@import "../styles/effect27.css";
 
 .splitting .word {
   white-space: nowrap;
   display: inline-block;
 }
+
 @source "../lib/underwater-nav/runtime.js";
 
 @theme inline {

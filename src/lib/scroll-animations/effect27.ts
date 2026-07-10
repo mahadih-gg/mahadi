@@ -3,15 +3,19 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
-export function initEffect27(title: HTMLElement, pinTarget?: HTMLElement) {
+/**
+ * Codrops On-Scroll Typography Animations — Set 2, data-effect27.
+ * Words fly in from random 3D depth while the parent section is pinned.
+ */
+export function initEffect27(title: HTMLElement) {
   const words = [...title.querySelectorAll<HTMLElement>(".word")];
 
-  words.forEach((word) => gsap.set(word.parentElement, { perspective: 1000 }));
+  words.forEach((word) => gsap.set(word.parentNode, { perspective: 1000 }));
 
-  gsap.fromTo(
+  return gsap.fromTo(
     words,
     {
-      willChange: "opacity, transform",
+      "will-change": "opacity, transform",
       z: () => gsap.utils.random(500, 950),
       opacity: 0,
       xPercent: () => gsap.utils.random(-100, 100),
@@ -26,13 +30,16 @@ export function initEffect27(title: HTMLElement, pinTarget?: HTMLElement) {
       xPercent: 0,
       yPercent: 0,
       z: 0,
-      stagger: { each: 0.006, from: "random" },
       scrollTrigger: {
         trigger: title,
         start: "center center",
         end: "+=300%",
         scrub: true,
-        pin: pinTarget ?? title.parentElement,
+        pin: title.parentNode as Element,
+      },
+      stagger: {
+        each: 0.006,
+        from: "random",
       },
     },
   );

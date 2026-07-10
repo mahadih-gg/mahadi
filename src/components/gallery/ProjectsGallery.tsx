@@ -65,6 +65,7 @@ export default function ProjectsGallery() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const frameRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const headingRef = useRef<HTMLDivElement | null>(null);
 
   const viewport = useViewportSize();
   const reducedMotion = useReducedMotionPreference();
@@ -74,6 +75,7 @@ export default function ProjectsGallery() {
     sectionRef,
     stageRef,
     frameRefs,
+    headingRef,
     projectCount: projects.length,
     viewport,
     enabled: !reducedMotion && isReady,
@@ -122,6 +124,19 @@ export default function ProjectsGallery() {
       <SpotlightGlow side="left" visible={activeIndex >= 0 && focusSide === "left"} />
       <SpotlightGlow side="right" visible={activeIndex >= 0 && focusSide === "right"} />
 
+      <div
+        ref={headingRef}
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0 flex flex-col items-center justify-center gap-3"
+      >
+        <span className="text-xs tracking-[0.3em] text-primary uppercase">
+          Selected Work
+        </span>
+        <h2 className="font-secondary text-[clamp(2.75rem,7vw,6rem)] font-bold uppercase tracking-tight text-foreground">
+          Projects
+        </h2>
+      </div>
+
       {isReady && (
         <GalleryStage
           projects={projects}
@@ -133,15 +148,6 @@ export default function ProjectsGallery() {
 
       <ProjectDetailPanel project={activeProject} layout={detailLayout} />
       <MobileProjectDetails project={activeProject} />
-
-      <div className="pointer-events-none absolute inset-x-0 top-8 flex justify-center md:top-12">
-        <span
-          className="text-xs tracking-[0.3em] text-white/40 uppercase transition-opacity duration-500"
-          style={{ opacity: activeIndex < 0 ? 1 : 0 }}
-        >
-          Projects
-        </span>
-      </div>
     </section>
   );
 }

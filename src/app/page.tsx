@@ -1,15 +1,16 @@
 import AboutMe from "@/components/about/AboutMe";
-import Hero from "@/components/Hero";
 import Experience from "@/components/experience/Experience";
 import ExperiencePageLine from "@/components/experience/ExperiencePageLine";
+import Footer from "@/components/Footer";
 import ProjectsGallery from "@/components/gallery/ProjectsGallery";
+import Hero from "@/components/Hero";
 import ContactSection from "@/components/sections/ContactSection";
 import SkillsSection from "@/components/skills/SkillsSection";
 import { AnimatedFooterText } from "@/components/typography/AnimatedFooterText";
 
 export default function Home() {
   return (
-    <main className="relative bg-background">
+    <main id="top" className="relative bg-background">
       <ExperiencePageLine />
       {/* No z-index here on purpose: a stacking context would trap the About
           cards' z-50 below the SVG line overlay (z-40). Leaving this wrapper
@@ -25,11 +26,9 @@ export default function Home() {
         <SkillsSection />
         <ContactSection />
         <AnimatedFooterText>
-          {`Act because you have hands,
-that bring to life your every command.
-With them you can create and build,
-and bring to life what once was stilled.`}
+          {`Great products begin where collaboration meets ownership.`}
         </AnimatedFooterText>
+        <Footer />
       </div>
     </main>
   );

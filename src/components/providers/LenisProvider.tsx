@@ -29,7 +29,15 @@ export function LenisProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <ReactLenis root ref={lenisRef} options={{ autoRaf: false }}>
+    <ReactLenis
+      root
+      ref={lenisRef}
+      options={{
+        autoRaf: false,
+        // Match Codrops OnScrollTypographyAnimations Lenis feel (lerp: 0.2)
+        lerp: 0.2,
+      }}
+    >
       {children}
     </ReactLenis>
   );

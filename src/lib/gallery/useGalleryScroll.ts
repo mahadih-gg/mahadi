@@ -3,7 +3,7 @@
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { type RefObject, useLayoutEffect, useRef, useState } from "react";
-import { frameStateFor } from "./frameStates";
+import { frameStateFor, headingStateFor } from "./frameStates";
 import {
   getCameraOffsetForProject,
   getOverviewStageScale,
@@ -22,6 +22,9 @@ type UseGalleryScrollOptions = {
   sectionRef: RefObject<HTMLElement | null>;
   stageRef: RefObject<HTMLDivElement | null>;
   frameRefs: RefObject<(HTMLDivElement | null)[]>;
+  /** Pinned section heading, kept outside the stage so the camera pan
+   * never translates it — only its depth (opacity/blur/scale) animates. */
+  headingRef?: RefObject<HTMLDivElement | null>;
   projectCount: number;
   viewport: Viewport;
   enabled: boolean;
@@ -36,6 +39,7 @@ export function useGalleryScroll({
   sectionRef,
   stageRef,
   frameRefs,
+  headingRef,
   projectCount,
   viewport,
   enabled,
@@ -70,6 +74,11 @@ export function useGalleryScroll({
         });
       });
 
+      const heading = headingRef?.current ?? null;
+      if (heading) {
+        gsap.set(heading, headingStateFor("default"));
+      }
+
       const tl = gsap.timeline({ paused: true });
 
       for (let i = 0; i < projectCount; i++) {
@@ -85,6 +94,14 @@ export function useGalleryScroll({
           { x: camera.x, y: camera.y, scale: 1, duration: 1, ease: "power2.inOut" },
           segmentStart,
         );
+
+        if (heading) {
+          tl.to(
+            heading,
+            { ...headingStateFor("blurred"), duration: 1, ease: "power2.inOut" },
+            segmentStart,
+          );
+        }
 
         for (let j = 0; j < projectCount; j++) {
           const frame = frames[j];
@@ -123,6 +140,13 @@ export function useGalleryScroll({
         },
         closingSegmentStart,
       );
+      if (heading) {
+        tl.to(
+          heading,
+          { ...headingStateFor("default"), duration: 1, ease: "power2.inOut" },
+          closingSegmentStart,
+        );
+      }
       frames.forEach((frame, index) => {
         if (!frame) return;
         const box = getProjectFrameBox(index, viewport.width, viewport.height);

@@ -58,6 +58,6 @@ export const experienceData: ExperienceEntry[] = [
     ],
     tech: ["React.js", "Bootstrap", "Ant Design", "Microservices"],
     logo: "/experience-gallery/TechnoVista.webp",
-    logoBackground: "#016435",
+    logoBackground: "#ddc4a4",
   },
 ];

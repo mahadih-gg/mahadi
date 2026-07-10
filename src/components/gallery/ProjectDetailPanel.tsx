@@ -60,7 +60,7 @@ function DetailContent({
       initial={h}
       animate={v}
       exit={h}
-      className="pointer-events-auto max-w-2xl"
+      className="pointer-events-auto max-w-lg"
     >
       <motion.span
         variants={reduceMotion ? undefined : itemVariants}
@@ -71,7 +71,7 @@ function DetailContent({
 
       <motion.h3
         variants={reduceMotion ? undefined : itemVariants}
-        className="mt-5 font-secondary text-3xl font-bold tracking-tight text-white md:text-4xl lg:text-5xl"
+        className="mt-5 font-secondary text-3xl font-bold tracking-tight text-foreground md:text-4xl lg:text-5xl"
       >
         {project.title}
       </motion.h3>
@@ -95,7 +95,7 @@ function DetailContent({
           <motion.li
             key={tech}
             variants={reduceMotion ? undefined : badgeVariants}
-            className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/70"
+            className="rounded-full border border-foreground/10 bg-foreground/5 px-3 backdrop-blur-lg py-1 text-xs text-foreground/90"
           >
             {tech}
           </motion.li>
@@ -153,7 +153,8 @@ export default function ProjectDetailPanel({
     >
       <div
         className={cn(
-          "w-full px-2 lg:px-4",
+          "flex w-full px-2 lg:px-4",
+          layout.side === "left" ? "justify-end" : "justify-start",
           layout.textAlign === "right" && "text-right",
         )}
       >

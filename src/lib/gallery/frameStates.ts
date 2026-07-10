@@ -56,3 +56,35 @@ export function depthStateFor(
   if (Math.abs(frameIndex - activeIndex) === 1) return "near";
   return "far";
 }
+
+/**
+ * States for the section heading that sits pinned at the center of the
+ * gallery, behind the frames. It never gets a position/translate tween —
+ * only these depth-style properties — so it visually recedes exactly like
+ * a far/blurred frame once a project is focused, then returns to full
+ * clarity once the camera pulls back to the overview.
+ */
+export type HeadingStateName = "default" | "blurred";
+
+export type HeadingStateValues = {
+  opacity: number;
+  filter: string;
+  scale: number;
+};
+
+const HEADING_STATE: Record<HeadingStateName, HeadingStateValues> = {
+  default: {
+    opacity: 1,
+    filter: "blur(0px) brightness(1)",
+    scale: 1,
+  },
+  blurred: {
+    opacity: 0.16,
+    filter: "blur(9px) brightness(0.45)",
+    scale: 0.94,
+  },
+};
+
+export function headingStateFor(name: HeadingStateName): HeadingStateValues {
+  return HEADING_STATE[name];
+}

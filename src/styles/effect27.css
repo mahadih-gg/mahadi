@@ -1,0 +1,50 @@
+/* Codrops Effect 27 — On-Scroll Typography (Set 2)
+   Scoped under .content--effect27 so Tailwind utilities cannot collide. */
+
+.content--effect27 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+  min-height: 100vh;
+  padding: 1.5rem 1.5rem 6rem;
+  /* Do not clip Z-depth fly-in */
+  overflow: visible;
+}
+
+.content--effect27 .content__title {
+  font-size: 12vw;
+  line-height: 1;
+  text-align: center;
+  display: grid;
+  gap: 2rem;
+  margin: 0;
+  color: var(--foreground);
+}
+
+/* Codrops .font-medium = 6vw size (NOT Tailwind font-weight) */
+.content--effect27 .fx27-text {
+  display: block;
+  font-size: 6vw;
+  margin-top: 3rem;
+  line-height: 1;
+  text-transform: uppercase;
+  /* Original: Typekit "nagel-variable"; Unbounded is the closest loaded face */
+  font-family: var(--font-display), sans-serif;
+  font-weight: 600;
+  font-variation-settings: "wght" 610;
+}
+
+.content--effect27 .content__identity {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 20%;
+  text-align: center;
+}
+
+.content--effect27 .splitting .word {
+  white-space: nowrap;
+  display: inline-block;
+}

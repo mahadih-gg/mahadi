@@ -56,7 +56,7 @@ export function initEffect28(title: HTMLElement) {
         scrollTrigger: {
           trigger: word,
           start: "top bottom+=40%",
-          end: "top top+=15%",
+          end: "top 60%",
           scrub: true,
         },
       },
