@@ -28,6 +28,8 @@ type PathBuildResult = {
   length: number;
   /** Cumulative length at each real company node, in anchor order */
   nodeLengths: number[];
+  /** Cumulative length at each About-highlight dot, in document order */
+  waypointLengths: number[];
 };
 
 /** Center of every `[data-exp-node]`, measured relative to the page line container. */
@@ -44,15 +46,12 @@ function measureNodeAnchors(containerRect: DOMRect): Point[] {
 }
 
 /**
- * Where the line enters the page from above — it should begin exactly at the
- * bottom edge of the Hero section (the Hero/About boundary), on the
- * top-right. The horizontal entry point comes from the `[data-line-start]`
- * marker near the top-right of the About section; the vertical start comes
- * from Hero's real bottom edge so the curve springs out right where Hero
- * ends. That distance and offset from the first timeline node is what gives
- * the lead-in its big S-sweep through About before it straightens into the
- * timeline. Falls back to the marker's own Y (then a fixed lead-in above the
- * first node) if Hero isn't found.
+ * Where the line enters the page from above — it begins at the bottom edge
+ * of the Hero section (Hero/About boundary), on the top-right. The
+ * horizontal entry point comes from the `[data-line-start]` marker near the
+ * top-right of About; the vertical start comes from Hero's bottom edge so
+ * the curve springs out right where Hero ends and sweeps down through the
+ * highlight dots before bowing toward Experience.
  */
 function measureLeadIn(
   containerRect: DOMRect,
@@ -75,28 +74,330 @@ function measureLeadIn(
   return { x: firstAnchor.x, y: Math.max(0, firstAnchor.y - 600) };
 }
 
+/**
+ * Apex of the About → Experience connector — a wide outward bow that frames
+ * the Experience heading before the path rejoins the first timeline node.
+ */
+function measureBulgeApex(
+  containerRect: DOMRect,
+  firstAnchor: Point,
+  lastWaypoint: Point | null,
+): Point | null {
+  const experienceEl = document.getElementById("experience");
+  const headerBlock = experienceEl?.firstElementChild as HTMLElement | null;
+  const headerRect = headerBlock?.getBoundingClientRect();
+  const railX = lastWaypoint?.x ?? firstAnchor.x;
+  const y = headerRect
+    ? headerRect.top + headerRect.height / 2 - containerRect.top
+    : firstAnchor.y - 120;
+  const minBow = Math.max(200, containerRect.width * 0.34);
+  const x = Math.min(
+    containerRect.width * 0.78,
+    Math.max(railX + minBow, containerRect.width * 0.58),
+  );
+
+  return { x, y };
+}
+
+type DotGlowElements = {
+  wrap: HTMLElement;
+  layers: HTMLElement[];
+  /** Expanding shuttle rings that pulse outward on touch. */
+  shuttles: HTMLElement[];
+  core: HTMLElement;
+};
+
+type WaypointMeasurement = {
+  points: Point[];
+  /** The dot elements themselves, in the same order as `points`. */
+  dotEls: HTMLElement[];
+  /** Bloom layers + wrap for each dot, same order as `points`. */
+  dotGlow: DotGlowElements[];
+};
+
+function measureWaypoints(containerRect: DOMRect): WaypointMeasurement {
+  const dots = document.querySelectorAll<HTMLElement>("[data-line-dot]");
+  const dotEls = Array.from(dots);
+  const points = dotEls.map((dot) => {
+    const rect = dot.getBoundingClientRect();
+    return {
+      x: rect.left + rect.width / 2 - containerRect.left,
+      y: rect.top + rect.height / 2 - containerRect.top,
+    };
+  });
+  const dotGlow = dotEls.map((dot) => {
+    const wrap =
+      dot.closest<HTMLElement>("[data-line-dot-wrap]") ?? dot.parentElement!;
+    return {
+      wrap,
+      layers: Array.from(
+        wrap.querySelectorAll<HTMLElement>("[data-line-dot-glow]"),
+      ),
+      shuttles: Array.from(
+        wrap.querySelectorAll<HTMLElement>("[data-line-dot-shuttle]"),
+      ),
+      core: dot,
+    };
+  });
+  return { points, dotEls, dotGlow };
+}
+
+/** Dot core size in px — idle vs active (absolute width/height, not scale). */
+const DOT_SIZE_IDLE = 6;
+const DOT_SIZE_ACTIVE = 11;
+
+/** Resting opacities for the two bloom layers (outer → inner) — kept low
+ * so the touch glow reads as a whisper, not a flare. */
+const DOT_GLOW_LAYER_OPACITY = [0.07, 0.14] as const;
+
+function setDotActive(core: HTMLElement, active: boolean) {
+  if (active) core.setAttribute("data-active", "");
+  else core.removeAttribute("data-active");
+}
+
+function isDotActive(core: HTMLElement) {
+  return core.hasAttribute("data-active");
+}
+
+function setDotSize(core: HTMLElement, size: number) {
+  gsap.set(core, {
+    width: size,
+    height: size,
+    scale: 1,
+    clearProps: "transform",
+  });
+}
+
+function syncDotVisualInstant(glow: DotGlowElements, lit: boolean) {
+  gsap.killTweensOf([glow.wrap, glow.core, ...glow.layers, ...glow.shuttles]);
+  setDotActive(glow.core, lit);
+  setDotSize(glow.core, lit ? DOT_SIZE_ACTIVE : DOT_SIZE_IDLE);
+  if (lit) {
+    gsap.set(glow.layers, {
+      opacity: (i: number) => DOT_GLOW_LAYER_OPACITY[i] ?? 0.1,
+      scale: 1,
+    });
+  } else {
+    gsap.set(glow.layers, { opacity: 0, scale: 0.92 });
+  }
+  gsap.set(glow.shuttles, { scale: 1, opacity: 0 });
+}
+
+/** Shuttle rings and smooth absolute size grow on touch. */
+function playDotGlowIn({ wrap, layers, shuttles, core }: DotGlowElements) {
+  gsap.killTweensOf([wrap, core, ...layers, ...shuttles]);
+
+  const alreadyActive = isDotActive(core);
+  setDotActive(core, true);
+
+  if (alreadyActive) {
+    setDotSize(core, DOT_SIZE_ACTIVE);
+    gsap.set(layers, {
+      opacity: (i: number) => DOT_GLOW_LAYER_OPACITY[i] ?? 0.1,
+      scale: 1,
+    });
+    return;
+  }
+
+  setDotSize(core, DOT_SIZE_IDLE);
+
+  const tl = gsap.timeline({
+    defaults: { overwrite: "auto" },
+  });
+
+  tl.to(core, {
+    width: DOT_SIZE_ACTIVE,
+    height: DOT_SIZE_ACTIVE,
+    duration: 0.48,
+    ease: "power2.inOut",
+  });
+
+  shuttles.forEach((shuttle, i) => {
+    tl.fromTo(
+      shuttle,
+      { scale: 0.75, opacity: 0.5 },
+      { scale: 3.2, opacity: 0, duration: 0.75, ease: "power2.out" },
+      0.04 + i * 0.11,
+    );
+  });
+
+  tl.fromTo(
+    layers,
+    { opacity: 0, scale: 0.92 },
+    {
+      opacity: (i: number) => DOT_GLOW_LAYER_OPACITY[i] ?? 0.1,
+      scale: 1,
+      duration: 0.48,
+      stagger: 0.05,
+      ease: "power2.out",
+    },
+    0.06,
+  );
+}
+
+/** Soft settle when the line retreats past a highlight dot. */
+function playDotGlowOut({ wrap, layers, shuttles, core }: DotGlowElements) {
+  gsap.killTweensOf([wrap, core, ...layers, ...shuttles]);
+
+  setDotActive(core, false);
+
+  gsap.to(layers, {
+    opacity: 0,
+    scale: 0.92,
+    duration: 0.32,
+    stagger: { each: 0.04, from: "end" },
+    ease: "power2.inOut",
+    overwrite: "auto",
+  });
+  gsap.set(shuttles, { scale: 1, opacity: 0 });
+  gsap.to(core, {
+    width: DOT_SIZE_IDLE,
+    height: DOT_SIZE_IDLE,
+    duration: 0.4,
+    ease: "power2.inOut",
+    overwrite: "auto",
+  });
+}
+
+/** Viewport fraction (0–1) at which the About section top triggers the
+ * line to start drawing — middle of the 50–60% band the design calls for. */
+const DRAW_START_VIEWPORT_FRACTION = 0.55;
+
+/**
+ * Scroll position (document Y) at which `el`'s vertical center lines up
+ * with the viewport's vertical center (i.e. "50% of the viewport").
+ */
+function scrollYAtViewportCenter(el: HTMLElement): number {
+  return scrollYAtViewportFraction(el, 0.5, "center");
+}
+
+/**
+ * Scroll position at which a point on `el` (top or center) lines up with
+ * `viewportFraction` of the viewport height — e.g. 0.55 means the anchor
+ * sits 55% down from the top of the screen.
+ */
+function scrollYAtViewportFraction(
+  el: HTMLElement,
+  viewportFraction: number,
+  anchor: "top" | "center" = "top",
+): number {
+  const rect = el.getBoundingClientRect();
+  const docTop = rect.top + window.scrollY;
+  const anchorY =
+    anchor === "center" ? docTop + rect.height / 2 : docTop;
+  return anchorY - window.innerHeight * viewportFraction;
+}
+
+type CalibrationPoint = { scrollY: number; length: number };
+
+/**
+ * Calibration curve mapping scroll position to drawn path length: when the
+ * About section's top hits the 50–60% viewport band, `{start, 0}`, then
+ * one point per highlight dot — at the scroll position where that
+ * highlight's vertical center crosses the viewport's center, the drawn tip
+ * should sit exactly on that dot's length — then `{end, pathLength}`.
+ * `lengthForScrollY` interpolates linearly between consecutive points, so
+ * every dot lights up right as its own highlight reaches mid-viewport,
+ * rather than everything bunching up right after the first one.
+ */
+function buildCalibrationPoints(
+  start: number,
+  end: number,
+  dotEls: HTMLElement[],
+  dotLengths: number[],
+  pathLength: number,
+): CalibrationPoint[] {
+  const points: CalibrationPoint[] = [{ scrollY: start, length: 0 }];
+
+  dotEls.forEach((dotEl, i) => {
+    const item = dotEl.closest<HTMLElement>("li");
+    if (!item) return;
+    const scrollY = scrollYAtViewportCenter(item);
+    const last = points[points.length - 1];
+    if (scrollY <= last.scrollY || scrollY >= end) return;
+    points.push({ scrollY, length: dotLengths[i] });
+  });
+
+  points.push({ scrollY: end, length: pathLength });
+  return points;
+}
+
+/** Piecewise-linear lookup of drawn length for a given scroll position. */
+function lengthForScrollY(points: CalibrationPoint[], scrollY: number): number {
+  if (scrollY <= points[0].scrollY) return points[0].length;
+  for (let i = 1; i < points.length; i++) {
+    if (scrollY <= points[i].scrollY) {
+      const prev = points[i - 1];
+      const curr = points[i];
+      const span = curr.scrollY - prev.scrollY;
+      const t = span > 0 ? (scrollY - prev.scrollY) / span : 1;
+      return prev.length + (curr.length - prev.length) * Math.min(1, Math.max(0, t));
+    }
+  }
+  return points[points.length - 1].length;
+}
+
 const round = (value: number) => Math.round(value * 100) / 100;
+
+/**
+ * Assembles the full point chain for the path — lead-in, the highlight-dot
+ * waypoints, then every real timeline node — alongside a parallel flag
+ * marking which points are real anchors. Only real anchors get an entry in
+ * `nodeLengths` (used for glow-crossing/pulse logic), so the waypoints can
+ * reshape the curve without being mistaken for a company node.
+ */
+function buildPointChain(
+  anchors: Point[],
+  leadIn: Point,
+  waypoints: Point[],
+  bulgeApex: Point | null,
+): { points: Point[]; isAnchor: boolean[] } {
+  const points: Point[] = [leadIn, ...waypoints];
+  const isAnchor: boolean[] = [false, ...waypoints.map(() => false)];
+  if (bulgeApex && waypoints.length > 0) {
+    points.push(bulgeApex);
+    isAnchor.push(false);
+  }
+  for (const anchor of anchors) {
+    points.push(anchor);
+    isAnchor.push(true);
+  }
+  return { points, isAnchor };
+}
 
 /**
  * Builds the path progressively, writing each intermediate `d` onto the
  * live `path` element so `getTotalLength()` can be used to record the
- * cumulative length at every node — needed to know exactly when the
- * traveling glow "crosses" a company on scroll.
+ * cumulative length at every point along the chain — needed to know
+ * exactly when the traveling glow "crosses" a company node, or when the
+ * drawn tip reaches an About-highlight dot. `segmentEnds` has one entry per
+ * point after the lead-in (real anchors and waypoints alike); `isAnchor`
+ * (same length) splits the resulting lengths into `nodeLengths` (real
+ * company nodes) and `waypointLengths` (highlight dots).
  */
 function measureSegments(
   path: SVGPathElement,
   d: string,
   segmentEnds: string[],
+  isAnchor: boolean[],
 ): PathBuildResult {
-  const nodeLengths = segmentEnds.map((partial) => {
+  const lengths = segmentEnds.map((partial) => {
     path.setAttribute("d", partial);
     return path.getTotalLength();
   });
 
   path.setAttribute("d", d);
+
+  const nodeLengths: number[] = [];
+  const waypointLengths: number[] = [];
+  lengths.forEach((len, i) => {
+    (isAnchor[i] ? nodeLengths : waypointLengths).push(len);
+  });
+
   return {
-    length: nodeLengths[nodeLengths.length - 1] ?? 0,
+    length: lengths[lengths.length - 1] ?? 0,
     nodeLengths,
+    waypointLengths,
   };
 }
 
@@ -113,8 +414,15 @@ function drawSweepPath(
   path: SVGPathElement,
   anchors: Point[],
   leadIn: Point,
+  waypoints: Point[],
+  bulgeApex: Point | null,
 ): PathBuildResult {
-  const points = [leadIn, ...anchors];
+  const { points, isAnchor } = buildPointChain(
+    anchors,
+    leadIn,
+    waypoints,
+    bulgeApex,
+  );
   let d = `M ${round(points[0].x)} ${round(points[0].y)}`;
   const segmentEnds: string[] = [];
 
@@ -130,7 +438,7 @@ function drawSweepPath(
     segmentEnds.push(d);
   }
 
-  return measureSegments(path, d, segmentEnds);
+  return measureSegments(path, d, segmentEnds, isAnchor.slice(1));
 }
 
 /**
@@ -141,9 +449,16 @@ function drawBowPath(
   path: SVGPathElement,
   anchors: Point[],
   leadIn: Point,
+  waypoints: Point[],
+  bulgeApex: Point | null,
 ): PathBuildResult {
   const amplitude = Math.max(12, Math.min(26, anchors[0].x - 8));
-  const points = [leadIn, ...anchors];
+  const { points, isAnchor } = buildPointChain(
+    anchors,
+    leadIn,
+    waypoints,
+    bulgeApex,
+  );
   let d = `M ${round(points[0].x)} ${round(points[0].y)}`;
   const segmentEnds: string[] = [];
 
@@ -160,7 +475,7 @@ function drawBowPath(
     segmentEnds.push(d);
   }
 
-  return measureSegments(path, d, segmentEnds);
+  return measureSegments(path, d, segmentEnds, isAnchor.slice(1));
 }
 
 /** Draws one continuous path of cubic bezier segments through the anchors. */
@@ -168,11 +483,13 @@ function drawPath(
   path: SVGPathElement,
   anchors: Point[],
   leadIn: Point,
+  waypoints: Point[],
+  bulgeApex: Point | null,
   trackWidth: number,
 ): PathBuildResult {
   return trackWidth < 640
-    ? drawBowPath(path, anchors, leadIn)
-    : drawSweepPath(path, anchors, leadIn);
+    ? drawBowPath(path, anchors, leadIn, waypoints, bulgeApex)
+    : drawSweepPath(path, anchors, leadIn, waypoints, bulgeApex);
 }
 
 function applyPathDash(path: SVGPathElement, length: number, offset: number) {
@@ -232,10 +549,32 @@ export function renderStaticExperiencePath({
     const containerRect = container.getBoundingClientRect();
     const anchors = measureNodeAnchors(containerRect);
     if (!anchors.length) return;
+    const waypoints = measureWaypoints(containerRect);
     const leadIn = measureLeadIn(containerRect, heroEl, anchors[0]);
-    drawPath(path, anchors, leadIn, track.clientWidth);
+    const bulgeApex = measureBulgeApex(
+      containerRect,
+      anchors[0],
+      waypoints.points.at(-1) ?? null,
+    );
+    drawPath(
+      path,
+      anchors,
+      leadIn,
+      waypoints.points,
+      bulgeApex,
+      track.clientWidth,
+    );
     path.style.strokeDasharray = "none";
     path.style.strokeDashoffset = "0";
+    waypoints.dotGlow.forEach(({ layers, shuttles, core }) => {
+      setDotActive(core, true);
+      setDotSize(core, DOT_SIZE_ACTIVE);
+      gsap.set(shuttles, { scale: 1, opacity: 0 });
+      gsap.set(layers, {
+        opacity: (i: number) => DOT_GLOW_LAYER_OPACITY[i] ?? 0.1,
+        scale: 1,
+      });
+    });
   };
 
   draw();
@@ -263,6 +602,15 @@ export function createExperienceAnimation({
 }: ExperienceAnimationElements): () => void {
   let pathLength = 0;
   let nodeLengths: number[] = [];
+  let dotLengths: number[] = [];
+  let dotGlow: DotGlowElements[] = [];
+  /** Whether each dot is currently lit — tracked so its glow tween only
+   * fires on the touch/untouch transition, not every scroll tick. */
+  let dotLit: boolean[] = [];
+  /** Scroll-position → drawn-length calibration (see `buildCalibrationPoints`),
+   * rebuilt alongside the path so every highlight dot lights up right as its
+   * own highlight crosses mid-viewport. */
+  let calibPoints: CalibrationPoint[] = [{ scrollY: 0, length: 0 }];
   /** Length at which the path crosses into the Experience section — the
    * glow orb stays hidden before this point, so it doesn't show while the
    * line is still sweeping through About. */
@@ -273,19 +621,72 @@ export function createExperienceAnimation({
   let lastCrossedIndex = -1;
   let rafId = 0;
 
+  // The draw range spans from when the About section's top reaches the
+  // 50–60% viewport band down to the bottom of the Experience track.
+  // Hero's bottom edge is no longer the start boundary — the line stays
+  // hidden until About scrolls into that zone. The Experience track's
+  // bottom (minus one viewport) is still the end anchor.
+  const docBottom = (el: HTMLElement) =>
+    el.getBoundingClientRect().bottom + window.scrollY;
+
+  const measureDrawStart = (): number => {
+    const aboutEl = document.getElementById("about");
+    if (aboutEl) {
+      return scrollYAtViewportFraction(
+        aboutEl,
+        DRAW_START_VIEWPORT_FRACTION,
+        "top",
+      );
+    }
+    return docBottom(heroEl ?? sectionEl);
+  };
+
   const buildPath = () => {
     const containerRect = container.getBoundingClientRect();
     const anchors = measureNodeAnchors(containerRect);
     if (!anchors.length) return false;
 
+    const waypoints = measureWaypoints(containerRect);
     const leadIn = measureLeadIn(containerRect, heroEl, anchors[0]);
-    const result = drawPath(path, anchors, leadIn, track.clientWidth);
+    const bulgeApex = measureBulgeApex(
+      containerRect,
+      anchors[0],
+      waypoints.points.at(-1) ?? null,
+    );
+    const result = drawPath(
+      path,
+      anchors,
+      leadIn,
+      waypoints.points,
+      bulgeApex,
+      track.clientWidth,
+    );
     pathLength = result.length;
     nodeLengths = result.nodeLengths;
+    dotLengths = result.waypointLengths;
+    dotGlow = waypoints.dotGlow;
+    dotLit = dotLengths.map(() => false);
     lastCrossedIndex = -1;
+
+    const start = measureDrawStart();
+    const end = Math.max(start + 1, docBottom(track) - window.innerHeight);
+    calibPoints = buildCalibrationPoints(
+      start,
+      end,
+      waypoints.dotEls,
+      dotLengths,
+      pathLength,
+    );
 
     const firstCardTopY = measureFirstCardTop(containerRect, track);
     glowRevealLength = findLengthAtY(path, firstCardTopY, pathLength);
+
+    const currentLength = lengthForScrollY(calibPoints, window.scrollY);
+    dotLengths.forEach((dotLength, i) => {
+      const lit = currentLength >= dotLength;
+      dotLit[i] = lit;
+      if (dotGlow[i]) syncDotVisualInstant(dotGlow[i], lit);
+    });
 
     applyPathDash(path, pathLength, pathLength);
     return true;
@@ -309,12 +710,29 @@ export function createExperienceAnimation({
     );
   };
 
-  const applyProgress = (progress: number) => {
+  /** Lights each highlight dot with a cinematic bloom + bump the instant the
+   * drawn tip reaches (or retreats past) it. */
+  const applyDotGlow = (currentLength: number) => {
+    dotLengths.forEach((dotLength, i) => {
+      const lit = currentLength >= dotLength;
+      if (lit === dotLit[i]) return;
+      dotLit[i] = lit;
+
+      const glow = dotGlow[i];
+      if (!glow) return;
+
+      if (lit) playDotGlowIn(glow);
+      else playDotGlowOut(glow);
+    });
+  };
+
+  const applyProgress = (currentLength: number) => {
     if (!pathLength) return;
-    const currentLength = pathLength * progress;
     path.style.strokeDashoffset = String(
       Math.max(0, pathLength - currentLength),
     );
+
+    applyDotGlow(currentLength);
 
     if (!glow) return;
 
@@ -357,28 +775,9 @@ export function createExperienceAnimation({
     }
   };
 
-  // The draw range spans from the top of the Projects gallery down to the
-  // bottom of the Experience track — crossing the gallery's pinned scroll
-  // distance. Two things make GSAP's usual `trigger`/`endTrigger` string
-  // math unsuitable here: its cross-pin distance calculation falls short
-  // of the real gap, and the Projects section itself is `position: fixed`
-  // while pinned, so its own live rect isn't a stable document-position
-  // reference once scrolled into (or past) its pin range. Using Hero's
-  // bottom edge (never pinned/transformed) for the start boundary, and the
-  // Experience track's bottom for the end, keeps this reliable at any
-  // scroll position via plain `getBoundingClientRect()` + `scrollY`.
-  const docBottom = (el: HTMLElement) =>
-    el.getBoundingClientRect().bottom + window.scrollY;
-
   const update = () => {
     rafId = 0;
-    const start = docBottom(heroEl ?? sectionEl);
-    const end = Math.max(start + 1, docBottom(track) - window.innerHeight);
-    const progress = Math.min(
-      1,
-      Math.max(0, (window.scrollY - start) / (end - start)),
-    );
-    applyProgress(progress);
+    applyProgress(lengthForScrollY(calibPoints, window.scrollY));
   };
 
   const requestUpdate = () => {
@@ -409,5 +808,8 @@ export function createExperienceAnimation({
     ScrollTrigger.removeEventListener("refresh", onRefresh);
     observer.disconnect();
     if (glow) gsap.killTweensOf(glow.querySelectorAll("[data-exp-glow-layer]"));
+    dotGlow.forEach(({ wrap, layers, shuttles, core }) => {
+      gsap.killTweensOf([wrap, core, ...layers, ...shuttles]);
+    });
   };
 }

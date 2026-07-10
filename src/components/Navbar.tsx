@@ -35,7 +35,7 @@ const Navbar = () => {
         delay: reduceMotion ? 0 : 0.15,
         ease: easePower3Out,
       }}
-      className="fixed top-0 right-0 left-0 z-50 flex items-center justify-between px-4 py-4 md:px-[58px]"
+      className="fixed top-0 right-0 left-0 z-[100] flex items-center justify-between px-4 py-4 md:px-[58px]"
     >
       <div className={cn("size-10 md:size-12 p-2 flex items-center justify-center transition-all duration-500", isScrolled && " bg-background/70 backdrop-blur-md rounded-full transition-all duration-500")}>
         <MahadiLogo className={cn("transition-all duration-500", isScrolled && "w-6 md:w-7 transition-all duration-500")} />

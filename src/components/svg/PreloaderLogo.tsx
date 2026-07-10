@@ -17,14 +17,14 @@ export default function PreloaderLogo() {
     >
       <motion.path
         className="preloader-fill"
-        fill="#FEFEFE"
+        fill="#ddc4a4"
         d={MAIN_PATH}
         initial={{ opacity: 0 }}
       />
       <motion.path
         className="preloader-stroke"
         fill="none"
-        stroke="#FEFEFE"
+        stroke="#ddc4a4"
         strokeWidth={6}
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -36,7 +36,7 @@ export default function PreloaderLogo() {
         style={{ transformBox: "fill-box", transformOrigin: "center" }}
         initial={{ opacity: 0, scale: 0, y: -28 }}
       >
-        <path fill="#FEFEFE" d={DOT_PATH} />
+        <path fill="#ddc4a4" d={DOT_PATH} />
       </motion.g>
     </svg>
   );
