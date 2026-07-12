@@ -26,8 +26,9 @@ export function AnimatedFooterText({ children, className = "" }: Props) {
 
   useGSAP(
     () => {
+      const section = sectionRef.current;
       const title = titleRef.current;
-      if (!title) return;
+      if (!section || !title) return;
 
       const prefersReduced = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
@@ -37,13 +38,21 @@ export function AnimatedFooterText({ children, className = "" }: Props) {
       let cancelled = false;
       let tween: gsap.core.Tween | undefined;
       let identityTween: gsap.core.Tween | undefined;
+      let onRefresh: (() => void) | null = null;
+      let resizeObserver: ResizeObserver | null = null;
 
-      void splitElement(title, "words").then(() => {
-        if (cancelled || !title.isConnected) return;
-        tween = initEffect27(title);
+      const setup = async () => {
+        await document.fonts.ready;
+        if (cancelled || !title.isConnected || !section.isConnected) return;
+
+        await splitElement(title, "words");
+        if (cancelled || !title.isConnected || !section.isConnected) return;
+
+        tween = initEffect27(title, section);
 
         const identity = identityRef.current;
         if (identity) {
+          gsap.set(identity, { opacity: 0, y: 24 });
           identityTween = gsap.fromTo(
             identity,
             { opacity: 0, y: 24 },
@@ -52,20 +61,34 @@ export function AnimatedFooterText({ children, className = "" }: Props) {
               y: 0,
               ease: "none",
               scrollTrigger: {
-                trigger: title,
-                start: "center center",
+                trigger: section,
+                start: "top top",
                 end: "+=300%",
                 scrub: true,
+                invalidateOnRefresh: true,
               },
             },
           );
         }
 
+        onRefresh = () => {
+          tween?.scrollTrigger?.refresh();
+          identityTween?.scrollTrigger?.refresh();
+        };
+        ScrollTrigger.addEventListener("refresh", onRefresh);
+
+        resizeObserver = new ResizeObserver(() => ScrollTrigger.refresh());
+        resizeObserver.observe(section);
+
         ScrollTrigger.refresh();
-      });
+      };
+
+      void setup();
 
       return () => {
         cancelled = true;
+        if (onRefresh) ScrollTrigger.removeEventListener("refresh", onRefresh);
+        resizeObserver?.disconnect();
         tween?.scrollTrigger?.kill();
         tween?.kill();
         identityTween?.scrollTrigger?.kill();

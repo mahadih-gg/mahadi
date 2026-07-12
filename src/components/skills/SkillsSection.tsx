@@ -118,7 +118,7 @@ export default function SkillsSection() {
       ref={sectionRef}
       id="skills"
       aria-label="Technical Expertise and skills"
-      className="relative h-screen w-full overflow-hidden"
+      className="relative z-10 h-screen w-full overflow-hidden"
     >
       <div className="mx-auto flex h-full w-full max-w-6xl flex-col justify-center gap-8 px-6 md:grid md:grid-cols-[minmax(0,300px)_1fr] md:items-center md:gap-16 md:px-10">
         <div>
